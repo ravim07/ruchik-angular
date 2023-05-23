@@ -1,0 +1,12 @@
+<mat-toolbar *ngIf="isUserLoggedIn" color="custom-primary">
+  <div class="toolbar-spacer"></div>
+  <button mat-raised-button *ngIf="isUserLoggedIn" (click)="logout()">
+    LogOut
+  </button>
+</mat-toolbar>
+<div class="h-100">
+  <div class="loader">
+    <mat-spinner *ngIf="loader"></mat-spinner>
+  </div>
+  <router-outlet *ngIf="!isIframe && !loader"></router-outlet>
+</div>

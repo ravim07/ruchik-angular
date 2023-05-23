@@ -1,0 +1,16 @@
+@import '~@angular/material/theming';
+
+$primary: mat-palette($mat-indigo);
+$accent: mat-palette($mat-pink);
+$custom-theme: mat-palette($mat-yellow, 700, 500, 900);
+
+$theme: mat.define-theme(
+  (
+    color: (
+      primary: $primary,
+      accent: $accent
+    )
+  )
+);
+
+@include mat.all-component-themes($theme);

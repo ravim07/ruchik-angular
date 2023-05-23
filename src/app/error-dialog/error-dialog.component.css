@@ -1,0 +1,84 @@
+.error-doc-type {
+    font-size: 12px;
+    font-style: italic;
+    color: #777777;
+}
+.error-lists {
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    padding: 6px 8px;
+}
+.error-list {
+    border-bottom: 2px dotted #949494;
+    padding: 6px 0;
+}
+.error-list:last-child {
+    border-bottom: none;
+}
+.cdk-overlay-pane{
+    width: 45vw !important;
+    position: static !important;
+}
+.ce {
+    font-weight: 700;
+font-size: 34px;
+text-align: center;
+color: #016CCE;
+}
+.popup-text {
+    font-size: 24px;
+line-height: 36px;
+color: #353535;
+}
+.error-title {
+    background: #FFD6D6;
+    border-left: 4px solid #CE0101;
+    font-weight: 600;
+font-size: 23px;
+color: #CE0101;
+}
+.mg-bg-blue {
+    background: #D6EBFF;
+border-left: 4px solid #016CCE;
+font-weight: 600;
+font-size: 23px;
+color: #016CCE !important;
+}
+.error-doc-name {
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 30px;
+    color: #000000;
+}
+.color-red {
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 30px;
+    color: #FF0000;
+}
+.add-btn {
+    background: #FFFFFF;
+border: 1px solid #016CCE;
+border-radius: 6px;
+font-weight: 500;
+font-size: 16px;
+padding: 5px 20px;
+}
+.Approved-btn {
+    background: #FF5D17;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 16px;
+    color: #fff;
+    border: none;
+    padding: 6px 30px;
+} 
+.ask-more-btn {
+    background: #FFFFFF;
+    border: 1px solid #FF5D17;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 16px;
+    color: #FF5D17;
+    padding: 6px 30px;
+}
