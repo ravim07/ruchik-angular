@@ -43,7 +43,7 @@ export class AppComponent implements OnInit, OnDestroy {
         ),
         takeUntil(this._destroying$)
       )
-      .subscribe((eee) => {
+      .subscribe(() => {
         this.isUserLoggedIn =
           this.msalService.instance.getAllAccounts().length > 0;
           this.loader = false;
@@ -83,17 +83,20 @@ export class AppComponent implements OnInit, OnDestroy {
   //   }
   // }
 
-  // logout() {
-  //   this.msalService.logoutRedirect({
-  //     postLogoutRedirectUri: 'http://localhost:4200',
-  //   });
-  // }
-  logout() { // Add log out function here
+  logout() {
     localStorage.clear();
-    this.msalService.logoutPopup({
-      mainWindowRedirectUri: "/"
+    // location.href = `https://login.microsoftonline.com/b691ecf0-5e83-41f9-8039-8d8a0006368a/oauth2/v2.0/logout?post_logout_redirect_uri=http://localhost:4200`;
+    this.msalService.logoutRedirect({
+      postLogoutRedirectUri: 'http://localhost:4200',
     });
   }
+  // logout() { // Add log out function here
+  //   localStorage.clear();
+  //   this.msalService.logoutPopup({
+  //     // mainWindowRedirectUri: "/"
+  //     mainWindowRedirectUri: window.location.origin
+  //   });
+  // }
 
   setLoginDisplay() {
     this.isUserLoggedIn = this.msalService.instance.getAllAccounts().length > 0;

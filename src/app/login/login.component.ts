@@ -10,7 +10,6 @@ import {
   EventType,
   InteractionStatus,
   PopupRequest,
-  RedirectRequest,
 } from '@azure/msal-browser';
 import { filter } from 'rxjs/operators';
 
@@ -21,7 +20,6 @@ import { filter } from 'rxjs/operators';
 })
 export class LoginComponent implements OnInit {
   constructor(
-    private authService: MsalService,
     private msalBroadcastService: MsalBroadcastService,
     @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
     private broadcastService: MsalBroadcastService,
@@ -47,7 +45,7 @@ export class LoginComponent implements OnInit {
   }
 
   setLoginDisplay() {
-    this.isUserLoggedIn = this.authService.instance.getAllAccounts().length > 0;
+    this.isUserLoggedIn = this.msalService.instance.getAllAccounts().length > 0;
   }
 
   // login() {

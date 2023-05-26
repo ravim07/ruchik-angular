@@ -1,58 +1,77 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { BorrowerService } from '../services/borrower.service';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-export interface PeriodicElement {
+export interface BorrowerList {
   firstName: string;
-  userId: number | string;
   lastName: string;
-  creationDate: string;
+  ceDealId: number | string;
+  creationTime: string;
+  businessName: string;
+  dataAssociate: string;
 }
-const ELEMENT_DATA: PeriodicElement[] = [
-  {
-    userId: 'CE1000434',
-    firstName: 'John',
-    lastName: 'deo',
-    creationDate: '12/02/2017',
-  },
-  {
-    userId: 1002,
-    firstName: 'John',
-    lastName: 'dark',
-    creationDate: '12/02/2017',
-  },
-  {
-    userId: 1003,
-    firstName: 'John',
-    lastName: 'singh',
-    creationDate: '12/02/2017',
-  },
-  {
-    userId: 1004,
-    firstName: 'jack',
-    lastName: 'jackson',
-    creationDate: '12/02/2017',
-  },
-  {
-    userId: 1005,
-    firstName: 'Paul',
-    lastName: 'sen',
-    creationDate: '12/02/2017',
-  },
-];
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
-  constructor() {}
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  borrowerList!: MatTableDataSource<BorrowerList>;
+  constructor(private apiService: BorrowerService, private snackBar: MatSnackBar) {}
 
   displayedColumns: string[] = [
-    'userId',
+    'ceDealId',
     'firstName',
     'lastName',
-    'creationDate',
+    'businessName',
+    'dataAssociate',
+    'creationTime',
   ];
-  dataSource = ELEMENT_DATA;
+  // dataSource = ELEMENT_DATA;
+  pageSize: number = 5;
+  totalDataCount: number = 0;
+  loader:boolean = true;
+  pageSizeOptions = [5,10,20,50,100];
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const data = {
+      currentPage: 1,
+      perPage: this.pageSize,
+    };
+    this.getBorrowerListData(data);
+  }
+
+  getBorrowerListData(item: any) {
+    this.apiService.getBorrowerList(item).subscribe(
+      (res: any) => {
+        this.loader = false;
+        this.borrowerList = new MatTableDataSource(res.opsDashboardDocument);
+        this.totalDataCount = res.totalRecord;
+        // this.borrowerList.paginator = this.paginator;
+        console.log(res);
+      },
+      (error: any) => {
+        this.loader = false;
+        console.log(error);
+      }
+    );
+  }
+
+  handlePageEvent(e: any) {
+    this.pageSize = e.pageSize;
+    this.loader = true;
+    console.log(e, 'on page event', this.pageSize);
+    this.getBorrowerListData({currentPage: e.pageIndex+1,
+      perPage: this.pageSize});
+  }
+
+  // applyFilter(event: any) {
+  //   let filterValue = event.target.value;
+  //   filterValue = filterValue.trim();
+  //   filterValue = filterValue.toLowerCase();
+  //   this.borrowerList.filter = filterValue;
+  // }
 }

@@ -1,8 +1,16 @@
 <div class="my-4">
-  <div class="loader" *ngIf="loader">
-    <mat-spinner></mat-spinner>
-  </div>
+  <ng-container *ngIf="loader">
+    <app-loader></app-loader>
+  </ng-container>
   <div *ngIf="!loader">
+    <nav aria-label="breadcrumb" class="container-fluid">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/home">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ ceDealId }}
+        </li>
+      </ol>
+    </nav>
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-6">
@@ -12,25 +20,53 @@
               class="first-column p-3 docsheight position-relative"
               *ngIf="borrowerInfo?.file?.length > 0"
             >
-              <div class="">
-                <pinch-zoom [wheel]="false" disableZoomControl="disable" #pinchZoom>
-                  <img [src]="uploadedImage" />
-                </pinch-zoom>
-                <!-- <embed src="https://borrowerfiles.file.core.windows.net/files/Ter_Stegen_6464910d6803200f51fa5e04_CE1000434/individual_kyc/4e7ebfbc-2138-4444-9eab-6e82ea1be577_19_05_23_083948.pdf" type="application/pdf" width="100%" height="500px" /> -->
-                <!-- <iframe src="https://docs.google.com/viewer?url=https://borrowerfiles.file.core.windows.net/files/Ter_Stegen_6464910d6803200f51fa5e04_CE1000434/individual_kyc/4e7ebfbc-2138-4444-9eab-6e82ea1be577_19_05_23_083948.pdf&embedded=true" width="100%" height="500px"></iframe> -->
-                <!-- <iframe src="https://borrowerfiles.file.core.windows.net/files/Ter_Stegen_6464910d6803200f51fa5e04_CE1000434/individual_kyc/4e7ebfbc-2138-4444-9eab-6e82ea1be577_19_05_23_083948.pdf?sv=2020-02-10&se=2023-05-23T11%3A44%3A56Z&sr=s&sp=r&sig=L9L2cFx3OBUG8tVqJfpYYlhpYBE1DGE3BhsKJV8nkyw%3D" width="100%" height="500px"></iframe> -->
-                <!-- <iframe [src]="pdfFile" style="width: 100%;height: 100%;border: none;"></iframe> -->
-              </div>
-              <div
+              <!-- <div
                 class="d-flex justify-content-center align-items-center"
-                *ngIf="imageLoader"
+                *ngIf="!imageLoader"
               >
-                <mat-spinner [diameter]="50"></mat-spinner>
+                <mat-spinner class="loader" [diameter]="100"></mat-spinner>
+              </div> -->
+              <div class="container-loader-overlay" *ngIf="!imageLoader">
+                <div class="container-loader-backdrop">
+                  <mat-progress-spinner
+                    color="primary"
+                    mode="indeterminate"
+                  ></mat-progress-spinner>
+                </div>
+              </div>
+              <div class="">
+                <ng-container *ngIf="!isPdfFile">
+                  <pinch-zoom
+                    [wheel]="false"
+                    disableZoomControl="disable"
+                    #pinchZoom
+                  >
+                    <img [src]="uploadedFileURL" />
+                  </pinch-zoom>
+                </ng-container>
+                <ng-container *ngIf="isPdfFile">
+                  <!-- <p>Hello</p> -->
+                  <!-- <ngx-doc-viewer
+                    [url]="uploadedFileURL"
+                    viewer="google"
+                    style="width: 100%; height: 50vh"
+                  ></ngx-doc-viewer> -->
+                  <pdf-viewer
+                    [src]="uploadedFileURL"
+                    [render-text]="true"
+                    [original-size]="false"
+                    style="width: 400px; height: 500px"
+                  ></pdf-viewer>
+                  <!-- <embed src="https://borrowerfiles.file.core.windows.net/files/Ter_Stegen_6464910d6803200f51fa5e04_CE1000434/individual_kyc/4e7ebfbc-2138-4444-9eab-6e82ea1be577_19_05_23_083948.pdf" type="application/pdf" width="100%" height="500px" /> -->
+                  <!-- <iframe src="https://docs.google.com/viewer?url=https://borrowerfiles.file.core.windows.net/files/Ter_Stegen_6464910d6803200f51fa5e04_CE1000434/individual_kyc/4e7ebfbc-2138-4444-9eab-6e82ea1be577_19_05_23_083948.pdf&embedded=true" width="100%" height="500px"></iframe> -->
+                  <!-- <iframe src="https://borrowerfiles.file.core.windows.net/files/Ter_Stegen_6464910d6803200f51fa5e04_CE1000434/individual_kyc/4e7ebfbc-2138-4444-9eab-6e82ea1be577_19_05_23_083948.pdf?sv=2020-02-10&se=2023-05-23T11%3A44%3A56Z&sr=s&sp=r&sig=L9L2cFx3OBUG8tVqJfpYYlhpYBE1DGE3BhsKJV8nkyw%3D" width="100%" height="500px"></iframe> -->
+                  <!-- <iframe [src]="pdfFile" style="width: 100%;height: 100%;border: none;"></iframe> -->
+                </ng-container>
               </div>
 
               <div class="img-viewer-btn d-flex justify-content-between">
                 <div class="">
-                  <a [href]="uploadedImage" [download]="uploadedImage">
+                  <a [href]="uploadedFileURL" [download]="uploadedFileURL">
                     <mat-icon class="download-icon">download</mat-icon>
                   </a>
                 </div>
@@ -56,18 +92,18 @@
                     <mat-icon>keyboard_arrow_right</mat-icon>
                   </button>
                 </div>
-                <div class="">
+                <div class="" *ngIf="!isPdfFile && !imageLoader">
                   <button
                     mat-icon-button
-                    [disabled]="pinchZoom.isZoomedIn"
-                    (click)="pinchZoom.toggleZoom()"
+                    [disabled]="pinchZoom?.isZoomedIn"
+                    (click)="pinchZoom?.toggleZoom()"
                   >
                     <mat-icon>zoom_in</mat-icon>
                   </button>
                   <button
                     mat-icon-button
-                    [disabled]="!pinchZoom.isZoomedIn"
-                    (click)="pinchZoom.toggleZoom()"
+                    [disabled]="!pinchZoom?.isZoomedIn"
+                    (click)="pinchZoom?.toggleZoom()"
                   >
                     <mat-icon>zoom_out</mat-icon>
                   </button>
@@ -75,7 +111,6 @@
               </div>
             </div>
           </div>
-          <div></div>
         </div>
 
         <div class="col-md-6">
@@ -267,7 +302,7 @@
                 <div class="d-flex align-items-center">
                   <img class="doc-icon" [src]="verified" alt="" />
                   <div class="doc-text">
-                    <h3>50</h3>
+                    <h3>{{ getVerifiedCount() }}</h3>
                     <p class="pt-2">Verified</p>
                   </div>
                 </div>
@@ -279,7 +314,7 @@
                 <div class="d-flex align-items-center">
                   <img class="doc-icon" [src]="unverified" alt="" />
                   <div class="doc-text">
-                    <h3>50</h3>
+                    <h3>{{ borrowerInfo.file.length - getVerifiedCount() }}</h3>
                     <p class="pt-2">Unverified</p>
                   </div>
                 </div>
@@ -291,7 +326,7 @@
                 <div class="d-flex align-items-center">
                   <img class="doc-icon" [src]="totaldoc" alt="" />
                   <div class="doc-text">
-                    <h3>50</h3>
+                    <h3>{{ borrowerInfo.file.length }}</h3>
                     <p class="pt-2">Total Doc</p>
                   </div>
                 </div>

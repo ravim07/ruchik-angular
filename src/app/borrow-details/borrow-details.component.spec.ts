@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BorrowDetailsComponent } from './borrow-details.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { HttpClientTestingModule  } from '@angular/common/http/testing';
+import { RouterModule, ActivatedRoute  } from '@angular/router';
 
 describe('BorrowDetailsComponent', () => {
   let component: BorrowDetailsComponent;
@@ -8,7 +11,9 @@ describe('BorrowDetailsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BorrowDetailsComponent ]
+      declarations: [ BorrowDetailsComponent ],
+      imports: [MatDialogModule, HttpClientTestingModule, RouterModule, ActivatedRoute ],
+      // providers: [ActivatedRoute ]
     })
     .compileComponents();
 

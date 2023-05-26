@@ -35,8 +35,12 @@ import {MatGridListModule} from '@angular/material/grid-list';
 // import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 import { LoginComponent } from './login/login.component';
-// import { PdfViewerModule } from 'ng2-pdf-viewer';
-// import { PdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { environment } from 'src/environments/environment';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { LoaderComponent } from './common/loader/loader.component';
+// import { NgxDocViewerModule } from 'ngx-doc-viewer';
 
 
 
@@ -45,7 +49,7 @@ const isIE =
   window.navigator.userAgent.indexOf('Trident/') > -1;
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, DashboardComponent, BorrowDetailsComponent, ErrorDialogComponent, LoginComponent],
+  declarations: [AppComponent, HomeComponent, DashboardComponent, BorrowDetailsComponent, ErrorDialogComponent, LoginComponent, LoaderComponent],
   imports: [
     BrowserModule,
     FormsModule,
@@ -66,14 +70,17 @@ const isIE =
     MatGridListModule,
     MatDialogModule,
     PinchZoomModule,
+    PdfViewerModule,
+    MatPaginatorModule,
+    MatSnackBarModule,
+    // NgxDocViewerModule,
     MsalModule.forRoot(
       new PublicClientApplication({
         auth: {
-          clientId: 'bb69c2ca-fc05-4632-930d-56420367146c', // Application (client) ID from the app registration
+          clientId: environment.clientId, // Application (client) ID from the app registration
           authority:
             'https://login.microsoftonline.com/common', // The Azure cloud instance and the app's sign-in audience (tenant ID, common, organizations, or consumers)
-          redirectUri: 'http://localhost:4200/home', // This is your redirect URI
-          // postLogoutRedirectUri: 'http://localhost:4200/',
+            redirectUri: 'http://localhost:4200/home', // This is your redirect URI
           navigateToLoginRequestUrl: true,
         },
         cache: {

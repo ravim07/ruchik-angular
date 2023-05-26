@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  apiURL:'https://da-app.creditenable.com/'
+  apiURL:'https://da-app.creditenable.com/api/',
+  clientId:'0e421cdf-b194-41d0-b325-050ac13bc6da',
 };
 
 /*

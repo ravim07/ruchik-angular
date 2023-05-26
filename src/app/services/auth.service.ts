@@ -10,13 +10,5 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  getBorrowerDetails(id: any) {
-    return this.http.get(
-      `${this.apiURL}api/BorrowerInfo/Borrower/GetBorrowerInfo/${id}`
-    );
-  }
 
-  getUploadedDocument(id: any) {
-    return this.http.get(`${this.apiURL}api/Document/Document/ViewFile/${id}`);
-  }
 }
