@@ -17,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
+import {MatDatepickerModule} from '@angular/material/datepicker';
 
 import {
   MsalGuard,
@@ -40,6 +41,9 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { LoaderComponent } from './common/loader/loader.component';
+import { InterceptorService } from './services/interceptor.service';
+import { MatSortModule } from '@angular/material/sort';
+import { MatNativeDateModule } from '@angular/material/core';
 // import { NgxDocViewerModule } from 'ngx-doc-viewer';
 
 
@@ -73,6 +77,9 @@ const isIE =
     PdfViewerModule,
     MatPaginatorModule,
     MatSnackBarModule,
+    MatSortModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     // NgxDocViewerModule,
     MsalModule.forRoot(
       new PublicClientApplication({
@@ -106,6 +113,11 @@ const isIE =
     {
       provide: HTTP_INTERCEPTORS,
       useClass: MsalInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: InterceptorService,
       multi: true,
     },
     MsalGuard,

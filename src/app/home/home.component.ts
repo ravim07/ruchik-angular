@@ -3,6 +3,8 @@ import { BorrowerService } from '../services/borrower.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject, Subscription, debounceTime } from 'rxjs';
+// import { MatSort, Sort } from '@angular/material/sort';
 
 export interface BorrowerList {
   firstName: string;
@@ -20,7 +22,20 @@ export interface BorrowerList {
 export class HomeComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   borrowerList!: MatTableDataSource<BorrowerList>;
-  constructor(private apiService: BorrowerService, private snackBar: MatSnackBar) {}
+  searchSubscription: Subscription;
+  searchSubject = new Subject<string>();
+  // @ViewChild(MatSort) sort!: MatSort;
+
+  constructor(
+    private apiService: BorrowerService,
+    private snackBar: MatSnackBar
+  ) {
+    this.searchSubscription = this.searchSubject
+      .pipe(debounceTime(300))
+      .subscribe((searchTerm: string) => {
+        this.performSearch(searchTerm);
+      });
+  }
 
   displayedColumns: string[] = [
     'ceDealId',
@@ -33,16 +48,39 @@ export class HomeComponent implements OnInit {
   // dataSource = ELEMENT_DATA;
   pageSize: number = 5;
   totalDataCount: number = 0;
-  loader:boolean = true;
-  pageSizeOptions = [5,10,20,50,100];
+  loader: boolean = true;
+  pageSizeOptions = [5, 10, 20, 50, 100];
+  searchText = '';
+  sortBy = '';
+  dataAssociate = [];
 
   ngOnInit(): void {
     const data = {
       currentPage: 1,
       perPage: this.pageSize,
+      searchText: this.searchText,
+      sortBy: this.sortBy,
     };
     this.getBorrowerListData(data);
   }
+
+  // ngAfterViewInit() {
+  //   this.sort.sortChange.subscribe((sort: Sort) => {
+  //     this.loadData(this.sort.active);
+  //   });
+  // }
+
+  // loadData(column:any) {
+  //   let uppercaseValue = column.charAt(0).toUpperCase() + column.slice(1);
+  //   this.sortBy = uppercaseValue; 
+  //   console.log("load data calling", uppercaseValue)
+  //   this.getBorrowerListData({
+  //     currentPage: 1,
+  //     perPage: this.pageSize,
+  //     searchText: this.searchText,
+  //     sortBy: this.sortBy,
+  //   });
+  // }
 
   getBorrowerListData(item: any) {
     this.apiService.getBorrowerList(item).subscribe(
@@ -50,8 +88,8 @@ export class HomeComponent implements OnInit {
         this.loader = false;
         this.borrowerList = new MatTableDataSource(res.opsDashboardDocument);
         this.totalDataCount = res.totalRecord;
+        this.dataAssociate = res.opsDashboardDocument.map((vl:any)=> vl.dataAssociate);
         // this.borrowerList.paginator = this.paginator;
-        console.log(res);
       },
       (error: any) => {
         this.loader = false;
@@ -64,14 +102,35 @@ export class HomeComponent implements OnInit {
     this.pageSize = e.pageSize;
     this.loader = true;
     console.log(e, 'on page event', this.pageSize);
-    this.getBorrowerListData({currentPage: e.pageIndex+1,
-      perPage: this.pageSize});
+    this.getBorrowerListData({
+      currentPage: e.pageIndex + 1,
+      perPage: this.pageSize,
+      searchText: this.searchText,
+      sortBy: this.sortBy,
+    });
   }
 
-  // applyFilter(event: any) {
-  //   let filterValue = event.target.value;
-  //   filterValue = filterValue.trim();
-  //   filterValue = filterValue.toLowerCase();
-  //   this.borrowerList.filter = filterValue;
-  // }
+  applyFilter(event: any) {
+    this.searchText = event.target.value;
+    this.searchText = this.searchText.trim();
+    this.searchSubject.next(this.searchText);
+  }
+
+  performSearch(searchText: string) {
+    this.getBorrowerListData({
+      currentPage: 1,
+      perPage: this.pageSize,
+      searchText: searchText,
+      sortBy: this.sortBy,
+    });
+  }
+
+  filterByDataAssociate(event:any){
+    this.loader = true;
+    this.searchSubject.next(event.value);
+  }
+
+  ngOnDestroy() {
+    this.searchSubscription.unsubscribe();
+  }
 }

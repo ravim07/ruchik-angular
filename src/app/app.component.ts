@@ -1,18 +1,13 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
-  MSAL_GUARD_CONFIG,
   MsalBroadcastService,
-  MsalGuardConfiguration,
   MsalService,
 } from '@azure/msal-angular';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import {
-  InteractionStatus,
-  PopupRequest,
-  RedirectRequest,
+  InteractionStatus
 } from '@azure/msal-browser';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -23,10 +18,8 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'PFA-frontend';
 
   constructor(
-    @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
     private broadcastService: MsalBroadcastService,
     private msalService: MsalService,
-    private router: Router
   ) {}
   isUserLoggedIn: boolean = false;
   isIframe = false;
@@ -50,38 +43,6 @@ export class AppComponent implements OnInit, OnDestroy {
       });
   }
 
-  login() {
-    if (this.msalGuardConfig.authRequest) {
-      this.msalService.loginRedirect({
-        ...this.msalGuardConfig.authRequest,
-      } as RedirectRequest);
-      this.router.navigate(['/home'])
-    } else {
-      this.msalService.loginRedirect();
-    }
-  }
-
-  // login() {
-  //   if (this.msalGuardConfig.authRequest){
-  //     this.msalService.loginPopup({...this.msalGuardConfig.authRequest} as PopupRequest)
-  //       .subscribe({
-  //         next: (result) => {
-  //           console.log(result);
-  //           this.setLoginDisplay();
-  //         },
-  //         error: (error) => console.log(error)
-  //       });
-  //   } else {
-  //     this.msalService.loginPopup()
-  //       .subscribe({
-  //         next: (result) => {
-  //           console.log(result);
-  //           this.setLoginDisplay();
-  //         },
-  //         error: (error) => console.log(error)
-  //       });
-  //   }
-  // }
 
   logout() {
     localStorage.clear();

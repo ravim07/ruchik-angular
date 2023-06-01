@@ -15,18 +15,13 @@
       <div class="row">
         <div class="col-md-6">
           <div class="h-100">
-            <h1>Documents Uploaded</h1>
+            <h1 class="mb-4">Documents Uploaded</h1>
             <div
               class="first-column p-3 docsheight position-relative"
-              *ngIf="borrowerInfo?.file?.length > 0"
+              *ngIf="uploadedFileURL.length > 0"
             >
-              <!-- <div
-                class="d-flex justify-content-center align-items-center"
-                *ngIf="!imageLoader"
-              >
-                <mat-spinner class="loader" [diameter]="100"></mat-spinner>
-              </div> -->
-              <div class="container-loader-overlay" *ngIf="!imageLoader">
+              ddf
+              <div class="container-loader-overlay" *ngIf="imageLoader">
                 <div class="container-loader-backdrop">
                   <mat-progress-spinner
                     color="primary"
@@ -34,7 +29,7 @@
                   ></mat-progress-spinner>
                 </div>
               </div>
-              <div class="">
+              <div class="h-100" *ngIf="!imageLoader">
                 <ng-container *ngIf="!isPdfFile">
                   <pinch-zoom
                     [wheel]="false"
@@ -45,28 +40,23 @@
                   </pinch-zoom>
                 </ng-container>
                 <ng-container *ngIf="isPdfFile">
-                  <!-- <p>Hello</p> -->
-                  <!-- <ngx-doc-viewer
-                    [url]="uploadedFileURL"
-                    viewer="google"
-                    style="width: 100%; height: 50vh"
-                  ></ngx-doc-viewer> -->
                   <pdf-viewer
                     [src]="uploadedFileURL"
+                    [fit-to-page]="true"
                     [render-text]="true"
                     [original-size]="false"
-                    style="width: 400px; height: 500px"
+                    [zoom]="zoom"
+                    style="width: 100%; height: 100%"
                   ></pdf-viewer>
-                  <!-- <embed src="https://borrowerfiles.file.core.windows.net/files/Ter_Stegen_6464910d6803200f51fa5e04_CE1000434/individual_kyc/4e7ebfbc-2138-4444-9eab-6e82ea1be577_19_05_23_083948.pdf" type="application/pdf" width="100%" height="500px" /> -->
-                  <!-- <iframe src="https://docs.google.com/viewer?url=https://borrowerfiles.file.core.windows.net/files/Ter_Stegen_6464910d6803200f51fa5e04_CE1000434/individual_kyc/4e7ebfbc-2138-4444-9eab-6e82ea1be577_19_05_23_083948.pdf&embedded=true" width="100%" height="500px"></iframe> -->
-                  <!-- <iframe src="https://borrowerfiles.file.core.windows.net/files/Ter_Stegen_6464910d6803200f51fa5e04_CE1000434/individual_kyc/4e7ebfbc-2138-4444-9eab-6e82ea1be577_19_05_23_083948.pdf?sv=2020-02-10&se=2023-05-23T11%3A44%3A56Z&sr=s&sp=r&sig=L9L2cFx3OBUG8tVqJfpYYlhpYBE1DGE3BhsKJV8nkyw%3D" width="100%" height="500px"></iframe> -->
-                  <!-- <iframe [src]="pdfFile" style="width: 100%;height: 100%;border: none;"></iframe> -->
                 </ng-container>
               </div>
 
               <div class="img-viewer-btn d-flex justify-content-between">
                 <div class="">
-                  <a [href]="uploadedFileURL" [download]="uploadedFileURL">
+                  <a
+                    [href]="uploadedFileURL"
+                    [download]="'file' + (currentIndex + 1)"
+                  >
                     <mat-icon class="download-icon">download</mat-icon>
                   </a>
                 </div>
@@ -81,102 +71,326 @@
                   </button>
                   <button
                     [ngClass]="
-                      currentIndex === borrowerInfo?.file?.length - 1
+                      currentIndex === borrowerFileInfo?.length - 1
                         ? 'disable'
                         : ''
                     "
-                    [disabled]="currentIndex === borrowerInfo?.file?.length - 1"
+                    [disabled]="currentIndex === borrowerFileInfo?.length - 1"
                     mat-icon-button
                     (click)="nextImage()"
                   >
                     <mat-icon>keyboard_arrow_right</mat-icon>
                   </button>
                 </div>
-                <div class="" *ngIf="!isPdfFile && !imageLoader">
+                <div class="">
                   <button
                     mat-icon-button
-                    [disabled]="pinchZoom?.isZoomedIn"
-                    (click)="pinchZoom?.toggleZoom()"
+                    [disabled]="zoomButtonDisable === 'zoomIn'"
+                    (click)="zoomIn()"
                   >
                     <mat-icon>zoom_in</mat-icon>
                   </button>
                   <button
                     mat-icon-button
-                    [disabled]="!pinchZoom?.isZoomedIn"
-                    (click)="pinchZoom?.toggleZoom()"
+                    [disabled]="zoomButtonDisable === 'zoomOut'"
+                    (click)="zoomOut()"
                   >
                     <mat-icon>zoom_out</mat-icon>
                   </button>
                 </div>
               </div>
             </div>
+            <div
+              class="first-column p-3 docsheight position-relative"
+              *ngIf="uploadedFileURL.length === 0"
+            >
+              <h1>No Document Found</h1>
+            </div>
           </div>
         </div>
 
         <div class="col-md-6">
           <div class="h-100">
-            <h1>Borrower Details</h1>
+            <div class="d-flex justify-content-between">
+              <h1 class="mb-3">Borrower Details</h1>
+              <div *ngIf="!isEditForm">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  class="btnColor"
+                  (click)="editFormField()"
+                >
+                  &nbsp; Edit &nbsp;<mat-icon>edit</mat-icon>
+                </button>
+              </div>
+              <div *ngIf="isEditForm">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  class="btnColor"
+                  (click)="saveFormField()"
+                >
+                  &nbsp; Save &nbsp;
+                </button>
+                <button
+                  mat-button
+                  class="cancelBtnColor"
+                  (click)="resetFormField()"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
             <div class="first-column mt-2">
-              <div class="p-3">
-                <div class="row">
-                  <div class="col-md-6">
-                    <mat-form-field>
-                      <mat-label>First Name</mat-label>
-                      <input
-                        matInput
-                        [(ngModel)]="borrowerInfo.deal.firstName"
-                      />
-                    </mat-form-field>
+              <div class="p-3 scrolable-item">
+                <form [formGroup]="borrowerDetailForm">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>First Name</mat-label>
+                        <input matInput formControlName="firstName" />
+                      </mat-form-field>
+                      <!-- <span>*First Name is required</span> -->
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Last Name</mat-label>
+                        <input matInput formControlName="lastName" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Requested Loan Amount</mat-label>
+                        <mat-select formControlName="requestedLoanAmount">
+                          <mat-option
+                            *ngFor="
+                              let drpV of dropDownValue.requestedLoanAmount
+                                | keyvalue : returnZero
+                            "
+                            [value]="drpV.value"
+                            >{{ drpV.key }}</mat-option
+                          >
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Final Loan Amount</mat-label>
+                        <input matInput formControlName="finalLoanAmount" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Loan Product</mat-label>
+                        <!-- <input matInput formControlName="loanProduct" /> -->
+                        <mat-select formControlName="loanProduct">
+                          <mat-option
+                            *ngFor="
+                              let drpV of dropDownValue.loanProduct
+                                | keyvalue : returnZero
+                            "
+                            [value]="drpV.value"
+                            >{{ drpV.key }}</mat-option
+                          >
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Call Mode</mat-label>
+                        <!-- <input matInput formControlName="callMode" /> -->
+                        <mat-select formControlName="callMode">
+                          <mat-option
+                            *ngFor="
+                              let drpV of dropDownValue.callMode
+                                | keyvalue : returnZero
+                            "
+                            [value]="drpV.value"
+                            >{{ drpV.key }}</mat-option
+                          >
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Sector</mat-label>
+                        <input matInput formControlName="sector" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>kind Of Loan</mat-label>
+                        <!-- <input matInput formControlName="kindOfLoan" /> -->
+                        <mat-select formControlName="kindOfLoan">
+                          <mat-option
+                            *ngFor="
+                              let drpV of dropDownValue.kindOfLoan
+                                | keyvalue : returnZero
+                            "
+                            [value]="drpV.value"
+                            >{{ drpV.key }}</mat-option
+                          >
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Is Business GST Registered</mat-label>
+                        <!-- <input matInput formControlName="isBusinessGSTRegistered"/> -->
+                        <mat-select formControlName="isBusinessGSTRegistered">
+                          <mat-option
+                            *ngFor="
+                              let drpV of dropDownValue.isBusinessGSTRegistered
+                                | keyvalue : returnZero
+                            "
+                            [value]="drpV.value"
+                            >{{ drpV.key }}</mat-option
+                          >
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Business Turn Over</mat-label>
+                        <input matInput formControlName="businessTurnover" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Business Type</mat-label>
+                        <!-- <input matInput formControlName="businessType" /> -->
+                        <mat-select formControlName="businessType">
+                          <mat-option
+                            *ngFor="
+                              let drpV of dropDownValue.businessType
+                                | keyvalue : returnZero
+                            "
+                            [value]="drpV.value"
+                            >{{ drpV.key }}</mat-option
+                          >
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Phone Number</mat-label>
+                        <input matInput formControlName="phone" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Email Address</mat-label>
+                        <input matInput formControlName="email" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>DOB</mat-label>
+                        <input
+                          matInput
+                          [matDatepicker]="picker"
+                          formControlName="dateOfBirth"
+                          placeholder="MM/DD/YYYY"
+                        />
+                        <!-- <mat-hint>MM/DD/YYYY</mat-hint> -->
+                        <mat-datepicker-toggle
+                          matSuffix
+                          [for]="picker"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                      </mat-form-field>
+
+                      <!-- <mat-form-field>
+                        <mat-label>DOB</mat-label>
+                        <input matInput formControlName="dateOfBirth" />
+                      </mat-form-field> -->
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Pan</mat-label>
+                        <input matInput formControlName="pan" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Business Address</mat-label>
+                        <input matInput formControlName="businessAddress" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Business Pincode</mat-label>
+                        <input matInput formControlName="businessPincode" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>city</mat-label>
+                        <input matInput formControlName="city" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>State</mat-label>
+                        <input matInput formControlName="state" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Personal PAN</mat-label>
+                        <input matInput formControlName="personalPAN" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>GSTN</mat-label>
+                        <input matInput formControlName="gstn" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Applicants Residential Address</mat-label>
+                        <input
+                          matInput
+                          formControlName="applicantsResidentialAddress"
+                        />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Applicants Residence City</mat-label>
+                        <input
+                          matInput
+                          formControlName="applicantsCityofResidence"
+                        />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Applicants Residential State</mat-label>
+                        <input
+                          matInput
+                          formControlName="applicantsStateofResidence"
+                        />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>Applicants Residence Pincode</mat-label>
+                        <input
+                          matInput
+                          formControlName="applicantsResidentialPincode"
+                        />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field>
+                        <mat-label>State</mat-label>
+                        <input matInput formControlName="state" />
+                      </mat-form-field>
+                    </div>
                   </div>
-                  <div class="col-md-6">
-                    <mat-form-field>
-                      <mat-label>Last Name</mat-label>
-                      <input
-                        matInput
-                        [(ngModel)]="borrowerInfo.deal.lastName"
-                      />
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-6">
-                    <mat-form-field>
-                      <mat-label>Desired Loan Amount</mat-label>
-                      <input
-                        matInput
-                        [(ngModel)]="borrowerInfo.deal.requestedLoanAmount"
-                      />
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-6">
-                    <mat-form-field>
-                      <mat-label>Annual Income</mat-label>
-                      <input matInput />
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-6">
-                    <mat-form-field>
-                      <mat-label>Phone Number</mat-label>
-                      <input matInput [(ngModel)]="borrowerInfo.deal.phone" />
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-6">
-                    <mat-form-field>
-                      <mat-label>Email Address</mat-label>
-                      <input matInput [(ngModel)]="borrowerInfo.deal.email" />
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-6">
-                    <mat-form-field>
-                      <mat-label>Phone Number</mat-label>
-                      <input matInput [(ngModel)]="borrowerInfo.deal.phone" />
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-6">
-                    <mat-form-field>
-                      <mat-label>Email Address</mat-label>
-                      <input matInput [(ngModel)]="borrowerInfo.deal.email" />
-                    </mat-form-field>
-                  </div>
-                </div>
+                </form>
               </div>
             </div>
             <div>
@@ -187,14 +401,14 @@
                     <div>
                       <span>Type of Document</span>
                       <mat-form-field>
-                        <mat-label>Select Category:</mat-label>
-                        <mat-select [formControl]="categoriesControl" multiple>
+                        <!-- <mat-label>Select Category:</mat-label> -->
+                        <mat-select [formControl]="typeOfDocument" multiple>
                           <mat-select-trigger>
                             <mat-chip-list>
                               <mat-chip
-                                *ngFor="let category of categoriesControl.value"
+                                *ngFor="let category of typeOfDocument.value"
                                 [removable]="true"
-                                (removed)="onCatRemoved(category)"
+                                (removed)="onCatRemovedTypDocument(category)"
                                 color="primary"
                                 selected
                               >
@@ -205,10 +419,10 @@
                           </mat-select-trigger>
 
                           <mat-option
-                            *ngFor="let category of borrowerInfo.file"
-                            [value]="category.documentType"
+                            *ngFor="let doc of documentWithErrorList | keyvalue"
+                            [value]="doc.key"
                           >
-                            {{ category.documentType }}
+                            {{ doc.key }}
                           </mat-option>
                         </mat-select>
                       </mat-form-field>
@@ -218,23 +432,25 @@
 
                 <div class="mt-4 p-3 third-column">
                   <div class="document">
-                    <div class="">
-                      <mat-form-field class="w-100">
-                        <mat-label>Phone Number</mat-label>
-                        <input matInput />
-                      </mat-form-field>
-                    </div>
-                    <div class="">
-                      <mat-form-field class="w-100">
-                        <mat-label>Phone Number</mat-label>
-                        <input matInput />
-                      </mat-form-field>
-                    </div>
-                    <div class="">
-                      <mat-form-field class="w-100">
-                        <mat-label>Phone Number</mat-label>
-                        <input matInput />
-                      </mat-form-field>
+                    <div class="list-dc">
+                      <div class="">
+                        <mat-form-field class="w-100">
+                          <mat-label>Phone Number</mat-label>
+                          <input matInput />
+                        </mat-form-field>
+                      </div>
+                      <div class="">
+                        <mat-form-field class="w-100">
+                          <mat-label>Phone Number</mat-label>
+                          <input matInput />
+                        </mat-form-field>
+                      </div>
+                      <div class="">
+                        <mat-form-field class="w-100">
+                          <mat-label>Phone Number</mat-label>
+                          <input matInput />
+                        </mat-form-field>
+                      </div>
                     </div>
                     <div>
                       <button class="me-2" mat-raised-button color="warn">
@@ -266,17 +482,42 @@
             <label>Type of Error</label>
             <div class="col-md-11">
               <mat-form-field class="col-md-10">
-                <mat-select placeholder="select some options">
+                <mat-select [formControl]="typeOfErrorSelect" multiple>
+                  <mat-select-trigger>
+                    <mat-chip-list>
+                      <mat-chip
+                        *ngFor="let category of typeOfErrorSelect.value"
+                        [removable]="true"
+                        (removed)="onCatRemovedTypError(category)"
+                        color="primary"
+                        selected
+                      >
+                        {{ category }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                      </mat-chip>
+                    </mat-chip-list>
+                  </mat-select-trigger>
+
+                  <mat-option
+                    *ngFor="let category of getTypeOfErrorList()"
+                    [value]="category"
+                  >
+                    {{ category }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <!-- <mat-form-field class="col-md-10">
+                <mat-select>
                   <mat-option *ngFor="let option of options" [value]="option">{{
                     option
                   }}</mat-option>
                 </mat-select>
-              </mat-form-field>
+              </mat-form-field> -->
             </div>
             <div class="col-md-11 mt-3">
               <span class="mt-1"> Message to Borrower</span>
               <mat-form-field>
-                <mat-label>Textarea</mat-label>
+                <!-- <mat-label>Textarea</mat-label> -->
                 <textarea matInput></textarea>
               </mat-form-field>
             </div>
@@ -314,8 +555,8 @@
                 <div class="d-flex align-items-center">
                   <img class="doc-icon" [src]="unverified" alt="" />
                   <div class="doc-text">
-                    <h3>{{ borrowerInfo.file.length - getVerifiedCount() }}</h3>
-                    <p class="pt-2">Unverified</p>
+                    <h3>{{ borrowerFileInfo?.length - getVerifiedCount() }}</h3>
+                    <p class="pt-2">Pending</p>
                   </div>
                 </div>
               </div>
@@ -326,7 +567,7 @@
                 <div class="d-flex align-items-center">
                   <img class="doc-icon" [src]="totaldoc" alt="" />
                   <div class="doc-text">
-                    <h3>{{ borrowerInfo.file.length }}</h3>
+                    <h3>{{ borrowerFileInfo?.length }}</h3>
                     <p class="pt-2">Total Doc</p>
                   </div>
                 </div>

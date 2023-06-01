@@ -40,7 +40,7 @@ export class AuthGuard implements CanActivate {
       .pipe(
         filter((status: InteractionStatus) => status === InteractionStatus.None)
       )
-      .subscribe(() => {
+      .subscribe((res: any) => {
         if (this.msalService.instance.getAllAccounts().length > 0) {
           this.router.navigate(['/home']);
         }

@@ -1,52 +1,100 @@
 <div class="error-modal">
-    <h2 class="ce">CE-123456789</h2>
-    <div class="my-3">
-        <div class="row">
-            <div class="col-md-6">
-                <h4 class="text-end popup-text">Approved Doc - <span>{{data.approvedDoc}}</span></h4>
-            </div>
-            <div class="col-md-6">
-                <h4 class="popup-text">Total Documents - <span>{{data.totalDoc}}</span></h4>
-            </div>
-        </div>
-        <div class="">
-            <h2 class="error-title">
-                Errors
-            </h2>
-            <div class="error-lists">
-                <div class="error-list">
-                    <div class="d-flex justify-content-between">
-                        <p class="error-doc-name m-0">Adhaar Card</p>
-                        <p class="error-doc-type m-0">Type of error</p>
-                    </div>
-                </div>
-                <div class="error-list">
-                    <div class="d-flex justify-content-between ">
-                        <p class="error-doc-name m-0">Adhaar Card</p>
-                        <p class="error-doc-type m-0">Type of error</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="mt-4 d-flex justify-content-between align-items-center mg-bg-blue mb-2">
-            <h2 class="">
-                Missing Documents
-            </h2>
-            <button class="add-btn mx-3" type="button">Add</button>
-        </div>
-        <div class="">
-            <div class="mb-5">
-                <p class="m-0 color-red">1. Pan Card</p>
-                <p class="m-0 color-red">1. Driving License </p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6 text-end mt-5">
-            <button class="Approved-btn" type="button">Approved User</button>
-            </div>
-            <div class="col-lg-6 mt-5">
-                <button class="ask-more-btn" type="button">Ask More Question</button>
-            </div>
-        </div>
+  <h2 class="ce">{{ data.ceDealId }}</h2>
+  <div class="close-icon-box">
+    <mat-icon class="cross-icon" mat-dialog-close>close</mat-icon>
+  </div>
+  <div class="my-3">
+    <div class="row">
+      <div class="col-md-6">
+        <h4 class="text-end popup-text">
+          Approved Doc - <span>{{ data.approvedDoc }}</span>
+        </h4>
+      </div>
+      <div class="col-md-6">
+        <h4 class="popup-text">
+          Total Documents - <span>{{ data.totalDoc }}</span>
+        </h4>
+      </div>
     </div>
+    <div class="">
+      <h2 class="error-title">Errors</h2>
+      <div class="error-lists">
+        <div class="error-list">
+          <div class="d-flex justify-content-between">
+            <p class="error-doc-name m-0">Adhaar Card</p>
+            <p class="error-doc-type m-0">Type of error</p>
+          </div>
+        </div>
+        <div class="error-list">
+          <div class="d-flex justify-content-between">
+            <p class="error-doc-name m-0">Adhaar Card</p>
+            <p class="error-doc-type m-0">Type of error</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="mt-4 d-flex position-relative justify-content-between align-items-center mg-bg-blue mb-2 py-2"
+    >
+      <h2 class="mb-0 ps-2">Missing Documents</h2>
+      <div>
+        <button
+          class="add-btn mx-3"
+          type="button"
+          (click)="(handleShowUploader)"
+        >
+          Add
+        </button>
+
+        <input
+          class="choosefile-btn"
+          type="file"
+          (change)="handleUploadDoc($event)"
+          multiple
+        />
+      </div>
+    </div>
+    <div class="">
+      <div class="mb-5">
+        <p class="m-0 color-red">1. Pan Card</p>
+        <p class="m-0 color-red">1. Driving License</p>
+      </div>
+    </div>
+    <ng-container>
+      <div *ngIf="uploadedDocuments.length > 0">
+        <div class="doc-list">
+          <div
+            class="d-flex justify-content-between align-items-center filename-border"
+            *ngFor="let fle of uploadedDocuments; let i = index"
+          >
+            <div class="file-name">
+              <span>{{ i + 1 }}. </span><span>{{ fle.name }}</span>
+            </div>
+            <div>
+              <span class="file-size">{{ (fle.size / 1024).toFixed(2) }}kb</span
+              ><span class="file-remove-icon" (click)="removeUploadedFile(i)">
+                x</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <span class="invalid-text" *ngIf="filesContainsError.length > 0"
+          >*Invalid file type for the
+          <span *ngFor="let name of filesContainsError"
+            ><strong>{{ name }}</strong></span
+          >
+          upload a valid file type (jpg|jpeg|png|pdf)</span
+        >
+      </div>
+    </ng-container>
+    <div class="row">
+      <div class="col-lg-6 text-end mt-5">
+        <button class="Approved-btn" type="button">Approved User</button>
+      </div>
+      <div class="col-lg-6 mt-5">
+        <button class="ask-more-btn" type="button">Ask More Question</button>
+      </div>
+    </div>
+  </div>
 </div>

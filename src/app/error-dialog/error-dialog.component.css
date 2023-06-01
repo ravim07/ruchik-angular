@@ -1,84 +1,158 @@
 .error-doc-type {
-    font-size: 12px;
-    font-style: italic;
-    color: #777777;
+  font-size: 12px;
+  font-style: italic;
+  color: #777777;
 }
 .error-lists {
-    border: 1px solid #dedede;
-    border-radius: 4px;
-    padding: 6px 8px;
+  border: 1px solid #dedede;
+  border-radius: 4px;
+  padding: 6px 8px;
 }
 .error-list {
-    border-bottom: 2px dotted #949494;
-    padding: 6px 0;
+  border-bottom: 2px dotted #949494;
+  padding: 6px 0;
 }
 .error-list:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
-.cdk-overlay-pane{
-    width: 45vw !important;
-    position: static !important;
+.cdk-overlay-pane {
+  width: 45vw !important;
+  position: static !important;
 }
 .ce {
-    font-weight: 700;
-font-size: 34px;
-text-align: center;
-color: #016CCE;
+  font-weight: 700;
+  font-size: 34px;
+  text-align: center;
+  color: #016cce;
 }
 .popup-text {
-    font-size: 24px;
-line-height: 36px;
-color: #353535;
+  font-size: 24px;
+  line-height: 36px;
+  color: #353535;
 }
 .error-title {
-    background: #FFD6D6;
-    border-left: 4px solid #CE0101;
-    font-weight: 600;
-font-size: 23px;
-color: #CE0101;
+  background: #ffd6d6;
+  border-left: 4px solid #ce0101;
+  font-weight: 500;
+  font-size: 18px;
+  color: #ce0101;
+  padding: 0 12px;
 }
 .mg-bg-blue {
-    background: #D6EBFF;
-border-left: 4px solid #016CCE;
-font-weight: 600;
-font-size: 23px;
-color: #016CCE !important;
+  background: #d6ebff;
+  border-left: 4px solid #016cce;
+  font-weight: 600;
+  font-size: 23px;
+  color: #016cce !important;
 }
 .error-doc-name {
-    font-weight: 400;
-    font-size: 20px;
-    line-height: 30px;
-    color: #000000;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 30px;
+  color: #000000;
 }
 .color-red {
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 30px;
-    color: #FF0000;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 30px;
+  color: #ff0000;
 }
 .add-btn {
-    background: #FFFFFF;
-border: 1px solid #016CCE;
-border-radius: 6px;
-font-weight: 500;
-font-size: 16px;
-padding: 5px 20px;
+  background: #ffffff;
+  border: 1px solid #016cce;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 5px 20px;
 }
 .Approved-btn {
-    background: #FF5D17;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 16px;
-    color: #fff;
-    border: none;
-    padding: 6px 30px;
-} 
+  background: #ff5d17;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 16px;
+  color: #fff;
+  border: none;
+  padding: 6px 30px;
+}
 .ask-more-btn {
-    background: #FFFFFF;
-    border: 1px solid #FF5D17;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 16px;
-    color: #FF5D17;
-    padding: 6px 30px;
+  background: #ffffff;
+  border: 1px solid #ff5d17;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 16px;
+  color: #ff5d17;
+  padding: 6px 30px;
+}
+.choosefile-btn {
+  height: 30px;
+  position: absolute;
+  right: 16px;
+  width: 70px;
+  background: #ffffff;
+  border: 1px solid #016cce;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 17px;
+  top: 9px;
+  opacity: 0;
+  cursor: pointer;
+}
+.doc-list {
+  border: 1px dashed;
+  padding: 16px;
+  border-color: #1a4a9d;
+  border-radius: 10px;
+}
+.file-size {
+  color: #a09e9e;
+  font-style: italic;
+  font-size: 12px;
+}
+.filename-border {
+  border-bottom: 1px solid #e3dede;
+  color: #525151;
+  margin: 10px auto;
+}
+.invalid-text {
+  color: #ce0101;
+  font-size: 10px;
+}
+.close-icon-box {
+  position: absolute;
+  right: 30px;
+  top: 10px;
+  z-index: 2;
+}
+.cross-icon {
+    background: red;
+    box-shadow: 0 0 2px 1px #cfcdcd;
+    border-radius: 30px;
+    width: 40px;
+    height: 40px;
+    font-size: 34px;
+    transition: 0.4s ease;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.cross-icon:hover {
+  background: #fff;
+  color: #f00;
+}
+
+.file-remove-icon {
+  font-size: 18px;
+  cursor: pointer;
+  transition: 0.4s ease;
+}
+
+.file-remove-icon:hover {
+  color: #f00;
+}
+
+.file-name {
+    width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
 }

@@ -32,3 +32,7 @@ img { width: 100%; }
   .loader-spinner {
     position: relative;
   }
+  /* .cdk-global-overlay-wrapper .cdk-overlay-pane
+  {
+    position: relative !important;
+  } */

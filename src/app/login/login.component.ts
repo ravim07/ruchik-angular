@@ -10,6 +10,7 @@ import {
   EventType,
   InteractionStatus,
   PopupRequest,
+  RedirectRequest,
 } from '@azure/msal-browser';
 import { filter } from 'rxjs/operators';
 
@@ -48,35 +49,51 @@ export class LoginComponent implements OnInit {
     this.isUserLoggedIn = this.msalService.instance.getAllAccounts().length > 0;
   }
 
-  // login() {
-  //   if (this.msalGuardConfig.authRequest) {
-  //     this.msalService.loginRedirect({
-  //       ...this.msalGuardConfig.authRequest,
-  //     } as RedirectRequest);
-  //   } else {
-  //     this.msalService.loginRedirect();
-  //   }
-  // }
-
   login() {
-    if (this.msalGuardConfig.authRequest){
-      this.msalService.loginPopup({...this.msalGuardConfig.authRequest} as PopupRequest)
-        .subscribe({
-          next: (result) => {
-            console.log(result);
-            this.setLoginDisplay();
-          },
-          error: (error) => console.log(error)
-        });
+    if (this.msalGuardConfig.authRequest) {
+
+      // this.msalService.handleRedirectObservable().subscribe((response: any) => {
+      //   if (response !== null && response.account !== null) {
+      //     // Redirect response is valid
+      //     console.log(response)
+      //     const accessToken = response.accessToken;
+      //     // Use the access token in your application
+      //   }
+      // });
+
+
+      this.msalService.loginRedirect({
+        ...this.msalGuardConfig.authRequest,
+      } as RedirectRequest).subscribe({
+        next:(result)=> {
+          console.log(result);
+        },
+        error: (error) => console.log(error)
+      });
     } else {
-      this.msalService.loginPopup()
-        .subscribe({
-          next: (result) => {
-            console.log(result);
-            this.setLoginDisplay();
-          },
-          error: (error) => console.log(error)
-        });
+      this.msalService.loginRedirect();
     }
   }
+
+  // login() {
+  //   if (this.msalGuardConfig.authRequest){
+  //     this.msalService.loginPopup({...this.msalGuardConfig.authRequest} as PopupRequest)
+  //       .subscribe({
+  //         next: (result) => {
+  //           console.log(result);
+  //           this.setLoginDisplay();
+  //         },
+  //         error: (error) => console.log(error)
+  //       });
+  //   } else {
+  //     this.msalService.loginPopup()
+  //       .subscribe({
+  //         next: (result) => {
+  //           console.log(result);
+  //           this.setLoginDisplay();
+  //         },
+  //         error: (error) => console.log(error)
+  //       });
+  //   }
+  // }
 }

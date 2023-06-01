@@ -1,11 +1,17 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 import { ActivatedRoute } from '@angular/router';
 import { PinchZoomComponent } from 'ngx-pinch-zoom';
 import { BorrowerService } from '../services/borrower.service';
-import { HttpClient } from '@angular/common/http';
+import DROPDOWNS_VALUES from '../../constent/dropDownConstents';
+import TYPEOFERROR from '../../constent/typeOfErrorConstents';
 
 @Component({
   selector: 'app-borrow-details',
@@ -22,18 +28,24 @@ export class BorrowDetailsComponent implements OnInit {
     public dialog: MatDialog,
     private apiService: BorrowerService,
     private route: ActivatedRoute,
-    private http: HttpClient
+    private formBuilder: FormBuilder
   ) {
     this.ceDealId = this.route.snapshot.paramMap.get('id');
+    this.dropDownValue = DROPDOWNS_VALUES;
+    this.documentWithErrorList = TYPEOFERROR;
   }
-  categoriesControl = new FormControl([]);
+  borrowerDetailForm!: FormGroup;
+  dropDownValue: any = {};
+  documentWithErrorList: any = {};
+  typeOfDocument = new FormControl([]);
+  typeOfErrorSelect = new FormControl([]);
   verified: string = '../../assets/image/verified.png';
   unverified: string = '../../assets/image/unverified.png';
   totaldoc: string = '../../assets/image/total-doc.png';
 
   categories: string[] = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
   options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-  borrowerInfo: any = {};
+  borrowerFileInfo: any = [];
   loader: boolean = true;
   currentIndex: number = 0;
   selectedOptions: any;
@@ -43,37 +55,103 @@ export class BorrowDetailsComponent implements OnInit {
   url =
     'https://borrowerfiles.file.core.windows.net/files/testaa_ssa_645a2c419b00e4667e0db030_CE1000408/bank_statements/45bb410b-25cf-460b-94fa-d54bacd1ef28_16_05_23_102857.pdf?sv=2020-02-10&se=2023-05-26T12%3A04%3A03Z&sr=s&sp=r&sig=vph%2BIEO1Sh0YJKev4jUXH7QbjC8lFQOoIZLfqB6xVp0%3D';
   ceDealId!: any;
-  isPdfFile:boolean = false;
+  isPdfFile: boolean = false;
+  borrowerDetailFormInitialValue: any = {};
+  zoom: number = 1.0;
+  zoomButtonDisable: string = 'zoomOut';
+  isEditForm: boolean = false;
+  // showFile: boolean = true;
 
   ngOnInit(): void {
-    
     const id = this.route.snapshot.paramMap.get('id');
+    // const id = 'CE1000408';
     this.apiService.getBorrowerDetails(id).subscribe(
       (data: any) => {
-        this.borrowerInfo = data;
+        this.borrowerFileInfo = data?.file;
+        if (data.file.length > 0) {
+          this.uploadedDocument(data.file[0].id);
+        }
+        this.borrowerDetailFormInitialValue = {
+          ceDealId: data.deal.ceDealId,
+          firstName: data.deal.firstName,
+          lastName: data.deal.lastName,
+          phone: data.deal.phone,
+          email: data.deal.email,
+          requestedLoanAmount: data.deal.requestedLoanAmount,
+          dateOfBirth: data.deal.dateOfBirth,
+          pan: data.deal.pan,
+          businessAddress: data.deal.businessAddress,
+          businessPincode: data.deal.businessPincode,
+          city: data.deal.city,
+          personalPAN: data.deal.personalPAN,
+          gstn: data.deal.gstn,
+          applicantsResidentialAddress: data.deal.applicantsResidentialAddress,
+          applicantsCityofResidence: data.deal.applicantsCityofResidence,
+          applicantsStateofResidence: data.deal.applicantsStateofResidence,
+          state: data.deal.state,
+          applicantsResidentialPincode: data.deal.applicantsResidentialPincode,
+          finalLoanAmount: data.deal.finalLoanAmount,
+          loanProduct: data.deal.loanProduct,
+          callMode: data.deal.callMode,
+          sector: data.deal.sector,
+          kindOfLoan: data.deal.kindOfLoan,
+          isBusinessGSTRegistered: data.deal.isBusinessGSTRegistered,
+          businessTurnover: data.deal.businessTurnover,
+          businessType: data.deal.businessType,
+        };
+        this.storeDataInForm(this.borrowerDetailFormInitialValue);
+        this.borrowerDetailForm.disable();
         this.loader = false;
-        this.uploadedDocument(data.file[0].id);
       },
       (error) => {
         console.error(error);
+        this.storeDataInForm({});
+        this.borrowerDetailForm.disable();
         this.loader = false;
       }
     );
   }
-  restoreZoom() {
-    if (this.isPdfFile && this.pinchZoom?.isZoomedIn) {
-      this.pinchZoom.toggleZoom();
+
+  zoomIn() {
+    if (this.isPdfFile) {
+      this.zoom = this.zoom + 0.25;
+    } else {
+      this.pinchZoom?.toggleZoom();
     }
+    this.zoomButtonDisable = 'zoomIn';
+  }
+
+  zoomOut() {
+    if (this.isPdfFile) {
+      if (this.zoom > 1) {
+        this.zoom = this.zoom - 0.25;
+      }
+    } else {
+      this.pinchZoom?.toggleZoom();
+    }
+    this.zoomButtonDisable = 'zoomOut';
+  }
+  restoreZoom() {
+    if (!this.isPdfFile && this.pinchZoom?.isZoomedIn) {
+      this.pinchZoom.toggleZoom();
+    } else {
+      this.zoom = 1.0;
+    }
+    this.zoomButtonDisable = 'zoomOut';
   }
   uploadedDocument(id: any) {
     this.apiService.getUploadedDocument(id).subscribe(
-      (data: any) => {
-        this.uploadedFileURL = data.uri;
-        if(this.uploadedFileURL.includes('pdf')) {
-          this.isPdfFile = true;
-          this.convertUrlToBlob(data.uri);
+      (res: any) => {
+        if (res.extension === '.pdf') {
+          if (res.data.length > 0) {
+            this.isPdfFile = true;
+            this.uploadedFileURL = `data:application/pdf;base64,${res.data}`;
+          }
         } else {
-          this.isPdfFile = false;
+          if (res.data.length > 0) {
+            this.isPdfFile = false;
+            this.uploadedFileURL = `data:image/png;base64,${res.data}`;
+          }
         }
         this.imageLoader = false;
       },
@@ -83,31 +161,31 @@ export class BorrowDetailsComponent implements OnInit {
     );
   }
 
-  removeOption(option: string) {
-    const index = this.selectedOptions.indexOf(option);
-    if (index >= 0) {
-      this.selectedOptions.splice(index, 1);
-    }
-  }
+  // removeOption(option: string) {
+  //   const index = this.selectedOptions.indexOf(option);
+  //   if (index >= 0) {
+  //     this.selectedOptions.splice(index, 1);
+  //   }
+  // }
 
   prevImage(): void {
     this.imageLoader = true;
     this.restoreZoom();
     this.currentIndex =
       this.currentIndex === 0
-        ? this.borrowerInfo.file.length - 1
+        ? this.borrowerFileInfo.length - 1
         : this.currentIndex - 1;
-    this.uploadedDocument(this.borrowerInfo.file[this.currentIndex].id);
+    this.uploadedDocument(this.borrowerFileInfo[this.currentIndex].id);
   }
 
   nextImage(): void {
     this.restoreZoom();
     this.imageLoader = true;
     this.currentIndex =
-      this.currentIndex === this.borrowerInfo.file.length - 1
+      this.currentIndex === this.borrowerFileInfo.length - 1
         ? 0
         : this.currentIndex + 1;
-    this.uploadedDocument(this.borrowerInfo.file[this.currentIndex].id);
+    this.uploadedDocument(this.borrowerFileInfo[this.currentIndex].id);
   }
 
   ReportError(): void {
@@ -122,17 +200,26 @@ export class BorrowDetailsComponent implements OnInit {
       maxHeight: '60vh',
       height: '60%',
       width: '60%',
+      disableClose: true,
       data: {
-        approvedDoc: '12',
-        totalDoc: '25',
+        approvedDoc: this.verifiedCount,
+        totalDoc: this.borrowerFileInfo.length,
+        ceDealId: this.ceDealId,
       },
     });
   }
 
-  onCatRemoved(cat: string) {
-    const categories = this.categoriesControl.value as never[];
+  onCatRemovedTypDocument(cat: string) {
+    const categories = this.typeOfDocument.value as never[];
     this.removeFirst(categories, cat);
-    this.categoriesControl.setValue(categories); // To trigger change detection
+    this.typeOfDocument.setValue(categories);
+    this.getTypeOfErrorList();
+  }
+  onCatRemovedTypError(cat: string) {
+    const categories = this.typeOfErrorSelect.value as never[];
+    this.removeFirst(categories, cat);
+    this.typeOfErrorSelect.setValue(categories);
+    console.log(this.typeOfErrorSelect);
   }
 
   private removeFirst(array: any[], toRemove: any): void {
@@ -144,40 +231,112 @@ export class BorrowDetailsComponent implements OnInit {
 
   getVerifiedCount() {
     let count = 0;
-    this.borrowerInfo.file.forEach((info: any) => {
+    this.borrowerFileInfo?.forEach((info: any) => {
       if (info.verified) {
         count = count + 1;
       }
     });
+    this.verifiedCount = count;
     return count;
   }
 
-  async convertUrlToBlob(url:any) {
-    // const url = 'https://example.com/image.jpg'; // Replace with your URL
-    // this.http.get(url).subscribe(
-    //   (data: any) => {
-    //     console.log(data,"data")
-    //     // this.borrowerInfo = data;
-    //     // this.loader = false;
-    //     // this.uploadedDocument(data.file[0].id);
-    //   },
-    //   (error) => {
-    //     console.error(error);
-    //     // this.loader = false;
-    //   }
-    // );
-    try {
-      const response = await fetch(url);
-      if (response.ok) {
-        const blob = await response.blob();
-        console.log('Blob:', blob);
+  storeDataInForm(data: any) {
+    this.borrowerDetailForm = this.formBuilder.group({
+      ceDealId: [data?.ceDealId, [Validators.required]],
+      firstName: [data?.firstName, [Validators.required]],
+      lastName: [data?.lastName, [Validators.required]],
+      phone: [data?.phone, [Validators.required]],
+      email: [data?.email, [Validators.required]],
+      requestedLoanAmount: [data?.requestedLoanAmount, [Validators.required]],
+      dateOfBirth: [data?.dateOfBirth, [Validators.required]],
+      pan: [data?.pan, [Validators.required]],
+      businessAddress: [data?.businessAddress, [Validators.required]],
+      businessPincode: [data?.businessPincode, [Validators.required]],
+      city: [data?.city, [Validators.required]],
+      personalPAN: [data?.personalPAN, [Validators.required]],
+      gstn: [data?.gstn, [Validators.required]],
+      applicantsResidentialAddress: [
+        data?.applicantsResidentialAddress,
+        [Validators.required],
+      ],
+      applicantsCityofResidence: [
+        data?.applicantsCityofResidence,
+        [Validators.required],
+      ],
+      applicantsStateofResidence: [
+        data?.applicantsStateofResidence,
+        [Validators.required],
+      ],
+      state: [data?.state, [Validators.required]],
+      applicantsResidentialPincode: [
+        data?.applicantsResidentialPincode,
+        [Validators.required],
+      ],
+      finalLoanAmount: [data?.finalLoanAmount, [Validators.required]],
+      loanProduct: [data?.loanProduct, [Validators.required]],
+      callMode: [data?.callMode, [Validators.required]],
+      sector: [data?.sector, [Validators.required]],
+      kindOfLoan: [data?.kindOfLoan, [Validators.required]],
+      isBusinessGSTRegistered: [
+        data?.isBusinessGSTRegistered,
+        [Validators.required],
+      ],
+      businessTurnover: [data?.businessTurnover, [Validators.required]],
+      businessType: [data?.businessType, [Validators.required]],
+      // Add more form controls as needed
+    });
+  }
 
-        // You can now use the 'blob' as needed, such as uploading it or displaying it in an <img> element.
-      } else {
-        console.error('Error:', response.status);
-      }
-    } catch (error) {
-      console.error('Error:', error);
+  editFormField() {
+    this.borrowerDetailForm.enable();
+    this.isEditForm = true;
+  }
+
+  resetFormField() {
+    this.storeDataInForm(this.borrowerDetailFormInitialValue);
+    this.borrowerDetailForm.disable();
+    this.isEditForm = false;
+  }
+
+  saveFormField() {
+    // this.borrowerDetailForm.disable();
+    // this.isEditForm = false;
+    if (!this.borrowerDetailForm.touched) {
+      this.isEditForm = false;
+      this.borrowerDetailForm.disable();
+      return;
     }
+    if (!this.borrowerDetailForm.valid) {
+      this.borrowerDetailForm.markAllAsTouched();
+      return;
+    }
+    this.loader = true;
+    this.apiService.updateBorrowerList(this.borrowerDetailForm.value).subscribe(
+      (res: any) => {
+        this.loader = false;
+        this.isEditForm = false;
+        this.borrowerDetailForm.disable();
+        console.log(res);
+      },
+      (error) => {
+        console.error(error);
+        this.loader = false;
+      }
+    );
+    console.log(this.borrowerDetailForm);
+  }
+  returnZero() {
+    return 0;
+  }
+
+  getTypeOfErrorList() {
+    let errorList: any = [];
+    const selectedDoc: any = this.typeOfDocument.value;
+    Object.keys(this.documentWithErrorList).forEach((vl: any) => {
+      if (selectedDoc?.includes(vl)) {
+        errorList = [...errorList, ...this.documentWithErrorList[vl]];
+      }
+    });
+    return errorList;
   }
 }
