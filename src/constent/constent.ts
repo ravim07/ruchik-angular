@@ -1,0 +1,3 @@
+const SNACKBARTIMMER = 3000;
+
+export default SNACKBARTIMMER;

@@ -12,6 +12,8 @@ import { PinchZoomComponent } from 'ngx-pinch-zoom';
 import { BorrowerService } from '../services/borrower.service';
 import DROPDOWNS_VALUES from '../../constent/dropDownConstents';
 import TYPEOFERROR from '../../constent/typeOfErrorConstents';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import SNACKBARTIMMER from "../../constent/constent";
 
 @Component({
   selector: 'app-borrow-details',
@@ -28,7 +30,8 @@ export class BorrowDetailsComponent implements OnInit {
     public dialog: MatDialog,
     private apiService: BorrowerService,
     private route: ActivatedRoute,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private snackBar: MatSnackBar
   ) {
     this.ceDealId = this.route.snapshot.paramMap.get('id');
     this.dropDownValue = DROPDOWNS_VALUES;
@@ -104,6 +107,11 @@ export class BorrowDetailsComponent implements OnInit {
         this.loader = false;
       },
       (error) => {
+        this.snackBar.open('Something went wrong!', 'Close', {
+          duration: SNACKBARTIMMER,
+          verticalPosition: 'top',
+          horizontalPosition: 'end',
+        });
         console.error(error);
         this.storeDataInForm({});
         this.borrowerDetailForm.disable();
@@ -157,6 +165,11 @@ export class BorrowDetailsComponent implements OnInit {
       },
       (error) => {
         console.error(error);
+        this.snackBar.open('Something went wrong!', 'Close', {
+          duration: SNACKBARTIMMER,
+          verticalPosition: 'top',
+          horizontalPosition: 'end',
+        });
       }
     );
   }
@@ -319,7 +332,11 @@ export class BorrowDetailsComponent implements OnInit {
         console.log(res);
       },
       (error) => {
-        console.error(error);
+        this.snackBar.open('Something went wrong!', 'Close', {
+          duration: SNACKBARTIMMER,
+          verticalPosition: 'top',
+          horizontalPosition: 'end',
+        });
         this.loader = false;
       }
     );

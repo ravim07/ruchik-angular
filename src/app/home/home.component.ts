@@ -4,6 +4,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, Subscription, debounceTime } from 'rxjs';
+import SNACKBARTIMMER from '../../constent/constent';
 // import { MatSort, Sort } from '@angular/material/sort';
 
 export interface BorrowerList {
@@ -64,35 +65,23 @@ export class HomeComponent implements OnInit {
     this.getBorrowerListData(data);
   }
 
-  // ngAfterViewInit() {
-  //   this.sort.sortChange.subscribe((sort: Sort) => {
-  //     this.loadData(this.sort.active);
-  //   });
-  // }
-
-  // loadData(column:any) {
-  //   let uppercaseValue = column.charAt(0).toUpperCase() + column.slice(1);
-  //   this.sortBy = uppercaseValue; 
-  //   console.log("load data calling", uppercaseValue)
-  //   this.getBorrowerListData({
-  //     currentPage: 1,
-  //     perPage: this.pageSize,
-  //     searchText: this.searchText,
-  //     sortBy: this.sortBy,
-  //   });
-  // }
-
   getBorrowerListData(item: any) {
     this.apiService.getBorrowerList(item).subscribe(
       (res: any) => {
         this.loader = false;
         this.borrowerList = new MatTableDataSource(res.opsDashboardDocument);
         this.totalDataCount = res.totalRecord;
-        this.dataAssociate = res.opsDashboardDocument.map((vl:any)=> vl.dataAssociate);
-        // this.borrowerList.paginator = this.paginator;
+        this.dataAssociate = res.opsDashboardDocument.map(
+          (vl: any) => vl.dataAssociate
+        );
       },
       (error: any) => {
         this.loader = false;
+        this.snackBar.open('Something went wrong!', 'Close', {
+          duration: SNACKBARTIMMER,
+          verticalPosition: 'top',
+          horizontalPosition: 'end',
+        });
         console.log(error);
       }
     );
@@ -125,7 +114,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  filterByDataAssociate(event:any){
+  filterByDataAssociate(event: any) {
     this.loader = true;
     this.searchSubject.next(event.value);
   }
