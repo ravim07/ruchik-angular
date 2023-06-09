@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import {
+  FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -11,9 +12,9 @@ import { ActivatedRoute } from '@angular/router';
 import { PinchZoomComponent } from 'ngx-pinch-zoom';
 import { BorrowerService } from '../services/borrower.service';
 import DROPDOWNS_VALUES from '../../constent/dropDownConstents';
-import TYPEOFERROR from '../../constent/typeOfErrorConstents';
+import DOCUMENTTYPE from '../../constent/typeOfDocumentwithError';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import SNACKBARTIMMER from "../../constent/constent";
+import SNACKBARTIMMER from '../../constent/constent';
 
 @Component({
   selector: 'app-borrow-details',
@@ -35,11 +36,11 @@ export class BorrowDetailsComponent implements OnInit {
   ) {
     this.ceDealId = this.route.snapshot.paramMap.get('id');
     this.dropDownValue = DROPDOWNS_VALUES;
-    this.documentWithErrorList = TYPEOFERROR;
+    this.documentWithErrorList = DOCUMENTTYPE;
   }
   borrowerDetailForm!: FormGroup;
   dropDownValue: any = {};
-  documentWithErrorList: any = {};
+  documentWithErrorList: any = [];
   typeOfDocument = new FormControl([]);
   typeOfErrorSelect = new FormControl([]);
   verified: string = '../../assets/image/verified.png';
@@ -64,6 +65,12 @@ export class BorrowDetailsComponent implements OnInit {
   zoomButtonDisable: string = 'zoomOut';
   isEditForm: boolean = false;
   // showFile: boolean = true;
+  dataAccordingToDocument: any = {
+    errorMessage: [],
+    inputFields: [],
+  };
+
+  dynamicInputForm = new FormGroup({});
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -203,6 +210,7 @@ export class BorrowDetailsComponent implements OnInit {
 
   ReportError(): void {
     this.typeOfError = true;
+    console.log(this.dynamicInputForm, '/qaq/');
   }
   confirm(): void {
     this.typeOfError = false;
@@ -222,20 +230,83 @@ export class BorrowDetailsComponent implements OnInit {
     });
   }
 
-  onCatRemovedTypDocument(cat: string) {
+  onRemovedTypDocument(cat: string) {
     const categories = this.typeOfDocument.value as never[];
     this.removeFirst(categories, cat);
     this.typeOfDocument.setValue(categories);
-    this.getTypeOfErrorList();
+    this.onItemSelected(this.typeOfDocument);
+    // this.getTypeOfErrorList();
   }
-  onCatRemovedTypError(cat: string) {
+  onRemovedTypError(cat: string) {
     const categories = this.typeOfErrorSelect.value as never[];
     this.removeFirst(categories, cat);
     this.typeOfErrorSelect.setValue(categories);
     console.log(this.typeOfErrorSelect);
   }
 
-  private removeFirst(array: any[], toRemove: any): void {
+  onItemSelected(event: any) {
+    let errorMessages: any = [];
+    let fieldsValue: any = [];
+
+    // For getting the input fields and error message as per the selected document type
+    event.value.forEach((vl: any) => {
+      errorMessages = [
+        ...errorMessages,
+        ...this.documentWithErrorList.find(
+          (doc: any) => doc.documentCategory === vl
+        ).errorMessage,
+      ];
+      fieldsValue = [
+        ...fieldsValue,
+        ...this.documentWithErrorList.find(
+          (doc: any) => doc.documentCategory === vl
+        ).fields,
+      ];
+    });
+    this.dataAccordingToDocument.errorMessages = new Set([...errorMessages]);
+    
+    // For remove duplicate input fields
+    let cloneFieldsValue: any = [];
+    let uniqueObj: any = {};
+    fieldsValue.forEach((vl: any) => {
+      let value = vl['key'];
+      if (!uniqueObj[value]) {
+        uniqueObj = { ...uniqueObj, [value]: true };
+        cloneFieldsValue.push(vl);
+      }
+    });
+
+    // for remove the document type
+    if (
+      cloneFieldsValue.length < this.dataAccordingToDocument.inputFields.length
+    ) {
+      let cloneDataAccordingToDocument = [
+        ...this.dataAccordingToDocument.inputFields,
+      ];
+
+      this.dataAccordingToDocument.inputFields = cloneFieldsValue;
+      //for remove the form control
+      cloneDataAccordingToDocument.forEach((fld: any, i: number) => {
+        let index = cloneFieldsValue.findIndex((vl: any) => vl.key === fld.key);
+        if (index === -1) {
+          this.dynamicInputForm.removeControl(fld.key);
+        }
+      });
+    } else {
+      //On adding the document type
+      cloneFieldsValue.forEach((vl: any) => {
+        let index = this.dataAccordingToDocument.inputFields.findIndex(
+          (field: any) => field.key === vl.key
+        );
+        if (index === -1) {
+          this.dataAccordingToDocument.inputFields.push(vl);
+          this.dynamicInputForm.addControl(vl.key, new FormControl(''));
+        }
+      });
+    }
+  }
+
+  removeFirst(array: any[], toRemove: any): void {
     const index = array.indexOf(toRemove);
     if (index !== -1) {
       array.splice(index, 1);
@@ -344,16 +415,5 @@ export class BorrowDetailsComponent implements OnInit {
   }
   returnZero() {
     return 0;
-  }
-
-  getTypeOfErrorList() {
-    let errorList: any = [];
-    const selectedDoc: any = this.typeOfDocument.value;
-    Object.keys(this.documentWithErrorList).forEach((vl: any) => {
-      if (selectedDoc?.includes(vl)) {
-        errorList = [...errorList, ...this.documentWithErrorList[vl]];
-      }
-    });
-    return errorList;
   }
 }

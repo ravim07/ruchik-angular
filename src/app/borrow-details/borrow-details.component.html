@@ -20,7 +20,6 @@
               class="first-column p-3 docsheight position-relative"
               *ngIf="uploadedFileURL.length > 0"
             >
-              ddf
               <div class="container-loader-overlay" *ngIf="imageLoader">
                 <div class="container-loader-backdrop">
                   <mat-progress-spinner
@@ -402,14 +401,17 @@
                       <span>Type of Document</span>
                       <mat-form-field>
                         <!-- <mat-label>Select Category:</mat-label> -->
-                        <mat-select [formControl]="typeOfDocument" multiple>
+                        <mat-select
+                          [formControl]="typeOfDocument"
+                          multiple
+                          (selectionChange)="onItemSelected($event)"
+                        >
                           <mat-select-trigger>
                             <mat-chip-list>
                               <mat-chip
                                 *ngFor="let category of typeOfDocument.value"
                                 [removable]="true"
-                                (removed)="onCatRemovedTypDocument(category)"
-                                color="primary"
+                                (removed)="onRemovedTypDocument(category)"
                                 selected
                               >
                                 {{ category }}
@@ -419,10 +421,10 @@
                           </mat-select-trigger>
 
                           <mat-option
-                            *ngFor="let doc of documentWithErrorList | keyvalue"
-                            [value]="doc.key"
+                            *ngFor="let doc of documentWithErrorList"
+                            [value]="doc.documentCategory"
                           >
-                            {{ doc.key }}
+                            {{ doc.documentCategory }}
                           </mat-option>
                         </mat-select>
                       </mat-form-field>
@@ -433,26 +435,52 @@
                 <div class="mt-4 p-3 third-column">
                   <div class="document">
                     <div class="list-dc">
-                      <div class="">
-                        <mat-form-field class="w-100">
-                          <mat-label>Phone Number</mat-label>
-                          <input matInput />
-                        </mat-form-field>
-                      </div>
-                      <div class="">
-                        <mat-form-field class="w-100">
-                          <mat-label>Phone Number</mat-label>
-                          <input matInput />
-                        </mat-form-field>
-                      </div>
-                      <div class="">
-                        <mat-form-field class="w-100">
-                          <mat-label>Phone Number</mat-label>
-                          <input matInput />
-                        </mat-form-field>
-                      </div>
+                      <ng-container
+                        *ngIf="dataAccordingToDocument.inputFields.length === 0"
+                      >
+                        <div
+                          class="d-flex justify-content-center align-items-center h-100 noInput"
+                        >
+                          <p>Please select at least one document</p>
+                        </div>
+                      </ng-container>
+                      <ng-container
+                        *ngIf="dataAccordingToDocument.inputFields.length > 0"
+                      >
+                        <ng-container
+                          *ngFor="
+                            let input of dataAccordingToDocument.inputFields
+                          "
+                        ><form [formGroup]="dynamicInputForm">
+                          <div class="">
+                            <ng-container *ngIf="input.type === 'text'">
+                              <mat-form-field class="w-100">
+                                <mat-label>{{ input.name }}</mat-label>
+                                <input matInput [type]="input.type" [formControlName]="input.key" />
+                              </mat-form-field>
+                            </ng-container>
+                            <ng-container *ngIf="input.type === 'Date'">
+                              <mat-form-field class="w-100">
+                                <mat-label>{{ input.name }}</mat-label>
+                                <input
+                                  matInput
+                                  [matDatepicker]="picker"
+                                  placeholder="MM/DD/YYYY"
+                                  [formControlName]="input.key"
+                                />
+                                <mat-datepicker-toggle
+                                  matSuffix
+                                  [for]="picker"
+                                ></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                              </mat-form-field>
+                            </ng-container>
+                          </div>
+                          </form>
+                        </ng-container>
+                      </ng-container>
                     </div>
-                    <div>
+                    <div *ngIf="dataAccordingToDocument.inputFields.length > 0">
                       <button class="me-2" mat-raised-button color="warn">
                         Confirm
                       </button>
@@ -472,7 +500,10 @@
         </div>
       </div>
     </div>
-    <div class="mt-4" *ngIf="typeOfError">
+    <div
+      class="mt-4"
+      *ngIf="typeOfError && dataAccordingToDocument.inputFields.length > 0"
+    >
       <div class="container-fluid">
         <div>
           <h1>Report Error</h1>
@@ -488,7 +519,7 @@
                       <mat-chip
                         *ngFor="let category of typeOfErrorSelect.value"
                         [removable]="true"
-                        (removed)="onCatRemovedTypError(category)"
+                        (removed)="onRemovedTypError(category)"
                         color="primary"
                         selected
                       >
@@ -499,7 +530,9 @@
                   </mat-select-trigger>
 
                   <mat-option
-                    *ngFor="let category of getTypeOfErrorList()"
+                    *ngFor="
+                      let category of dataAccordingToDocument.errorMessages
+                    "
                     [value]="category"
                   >
                     {{ category }}

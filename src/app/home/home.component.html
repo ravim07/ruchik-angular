@@ -5,7 +5,10 @@
     </mat-form-field>
     <div>
       <mat-form-field class="">
-        <mat-select placeholder="Select Associate" (selectionChange)="filterByDataAssociate($event)">
+        <mat-select
+          placeholder="Select Associate"
+          (selectionChange)="filterByDataAssociate($event)"
+        >
           <mat-option *ngFor="let option of dataAssociate" [value]="option">{{
             option
           }}</mat-option>
@@ -73,13 +76,15 @@
       <td class="mat-cell" colspan="3">No data found</td>
     </tr>
   </table>
-  <mat-paginator
-    [pageSizeOptions]="pageSizeOptions"
-    [showFirstLastButtons]="false"
-    (page)="handlePageEvent($event)"
-    [pageSize]="pageSize"
-    [length]="totalDataCount"
-    aria-label="Select page of periodic elements"
-  >
-  </mat-paginator>
+  <ng-container>
+    <mat-paginator
+      [pageSizeOptions]="pageSizeOptions"
+      [showFirstLastButtons]="false"
+      (page)="handlePageEvent($event)"
+      [pageSize]="pageSize"
+      [length]="totalDataCount"
+      aria-label="Select page of periodic elements"
+    >
+    </mat-paginator>
+  </ng-container>
 </div>

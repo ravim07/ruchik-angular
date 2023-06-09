@@ -90,7 +90,6 @@ export class HomeComponent implements OnInit {
   handlePageEvent(e: any) {
     this.pageSize = e.pageSize;
     this.loader = true;
-    console.log(e, 'on page event', this.pageSize);
     this.getBorrowerListData({
       currentPage: e.pageIndex + 1,
       perPage: this.pageSize,
