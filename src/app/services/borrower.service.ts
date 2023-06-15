@@ -31,4 +31,31 @@ export class BorrowerService {
       data
     );
   }
+
+  updateDynamicField(id: number, data: any) {
+    return this.http.post(
+      `${this.apiURL}BorrowerInfo/Borrower/UpdateDADynamicField/${id}`,
+      data
+    );
+  }
+
+  addMissingDocument(data: any){
+    return this.http.post(
+      `${this.apiURL}BorrowerInfo/Borrower/OpsMarkError`,
+      data
+    );
+  }
+
+  addErrorReport(data: any){
+    return this.http.post(
+      `${this.apiURL}Document/Document/ErrorMarkDocument`,
+      data
+    );
+  }
+
+  getAssociateList(){
+    return this.http.get(
+      `${this.apiURL}/UserInfo/UserDetails/GetDateAssociate`
+    );
+  }
 }

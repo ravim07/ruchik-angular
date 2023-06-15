@@ -6,31 +6,28 @@
   <div class="my-3">
     <div class="row">
       <div class="col-md-6">
-        <h4 class="text-end popup-text">
+        <h4 class="text-center popup-text">
           Approved Doc - <span>{{ data.approvedDoc }}</span>
         </h4>
       </div>
       <div class="col-md-6">
-        <h4 class="popup-text">
+        <h4 class="popup-text text-center">
           Total Documents - <span>{{ data.totalDoc }}</span>
         </h4>
       </div>
     </div>
     <div class="">
       <h2 class="error-title">Errors</h2>
-      <div class="error-lists">
-        <div class="error-list">
+      <div class="error-lists" *ngIf="errorDocList.length > 0">
+        <div class="error-list" *ngFor="let doc of errorDocList; let i = index">
           <div class="d-flex justify-content-between">
-            <p class="error-doc-name m-0">Adhaar Card</p>
-            <p class="error-doc-type m-0">Type of error</p>
+            <p class="error-doc-name m-0">{{ doc.cat }}</p>
+            <p class="error-doc-type m-0">{{ doc.type }}</p>
           </div>
         </div>
-        <div class="error-list">
-          <div class="d-flex justify-content-between">
-            <p class="error-doc-name m-0">Adhaar Card</p>
-            <p class="error-doc-type m-0">Type of error</p>
-          </div>
-        </div>
+      </div>
+      <div *ngIf="errorDocList.length === 0">
+        <span class="errMsg">No error reported!</span>
       </div>
     </div>
     <div
@@ -41,60 +38,65 @@
         <button
           class="add-btn mx-3"
           type="button"
-          (click)="(handleShowUploader)"
+          (click)="handleShowUploader()"
         >
           Add
         </button>
-
-        <input
-          class="choosefile-btn"
-          type="file"
-          (change)="handleUploadDoc($event)"
-          multiple
-        />
       </div>
     </div>
-    <div class="">
+    <div class="" *ngIf="showUploader">
       <div class="mb-5">
-        <p class="m-0 color-red">1. Pan Card</p>
-        <p class="m-0 color-red">1. Driving License</p>
+        <div>
+          <mat-form-field class="multi-chips w-100">
+            <mat-label>Select Document</mat-label>
+            <mat-select [formControl]="missingDocument" multiple>
+              <mat-select-trigger>
+                <mat-chip-list>
+                  <mat-chip
+                    *ngFor="let category of missingDocument.value"
+                    [removable]="true"
+                    (removed)="onRemovedTypDocument(category)"
+                    selected
+                  >
+                    {{ category }}
+                    <mat-icon matChipRemove>cancel</mat-icon>
+                  </mat-chip>
+                </mat-chip-list>
+              </mat-select-trigger>
+
+              <mat-option
+                *ngFor="let doc of documentWithErrorList"
+                [value]="doc.documentCategory"
+              >
+                {{ doc.documentCategory }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="!missingDocument.valid"
+              >*This field is Required</mat-error
+            >
+          </mat-form-field>
+        </div>
       </div>
     </div>
-    <ng-container>
-      <div *ngIf="uploadedDocuments.length > 0">
-        <div class="doc-list">
-          <div
-            class="d-flex justify-content-between align-items-center filename-border"
-            *ngFor="let fle of uploadedDocuments; let i = index"
-          >
-            <div class="file-name">
-              <span>{{ i + 1 }}. </span><span>{{ fle.name }}</span>
-            </div>
-            <div>
-              <span class="file-size">{{ (fle.size / 1024).toFixed(2) }}kb</span
-              ><span class="file-remove-icon" (click)="removeUploadedFile(i)">
-                x</span
-              >
-            </div>
-          </div>
-        </div>
-
-        <span class="invalid-text" *ngIf="filesContainsError.length > 0"
-          >*Invalid file type for the
-          <span *ngFor="let name of filesContainsError"
-            ><strong>{{ name }}</strong></span
-          >
-          upload a valid file type (jpg|jpeg|png|pdf)</span
-        >
-      </div>
-    </ng-container>
-    <div class="row">
-      <div class="col-lg-6 text-end mt-5">
-        <button class="Approved-btn" type="button">Approved User</button>
-      </div>
-      <div class="col-lg-6 mt-5">
-        <button class="ask-more-btn" type="button">Ask More Question</button>
-      </div>
+    <div class="text-center d-flex align-items-center">
+      <button
+        class="Approved-btn mx-2 mt-3"
+        type="button"
+        (click)="submitMissingDocument()"
+        [ngClass]="buttonLoader ? 'disable' : ''"
+        [disabled]="buttonLoader"
+      >
+        <span *ngIf="!buttonLoader">Approve User</span>
+        <span class="btn-loader" *ngIf="buttonLoader">
+          <mat-progress-spinner
+            diameter="20"
+            mode="indeterminate"
+          ></mat-progress-spinner>
+        </span>
+      </button>
+      <button class="ask-more-btn mx-2 mt-3" type="button">
+        Ask More Question
+      </button>
     </div>
   </div>
 </div>

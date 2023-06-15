@@ -1,6 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import {
-  FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -13,8 +12,7 @@ import { PinchZoomComponent } from 'ngx-pinch-zoom';
 import { BorrowerService } from '../services/borrower.service';
 import DROPDOWNS_VALUES from '../../constent/dropDownConstents';
 import DOCUMENTTYPE from '../../constent/typeOfDocumentwithError';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import SNACKBARTIMMER from '../../constent/constent';
+import { SharedService } from '../services/shared.service';
 
 @Component({
   selector: 'app-borrow-details',
@@ -28,21 +26,23 @@ export class BorrowDetailsComponent implements OnInit {
   typeOfError: boolean = false;
   @ViewChild('pinchZoom') pinchZoom: any = ElementRef<PinchZoomComponent>;
   constructor(
-    public dialog: MatDialog,
+    private dialog: MatDialog,
     private apiService: BorrowerService,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private snackBar: MatSnackBar
+    private sharedService: SharedService
   ) {
     this.ceDealId = this.route.snapshot.paramMap.get('id');
     this.dropDownValue = DROPDOWNS_VALUES;
     this.documentWithErrorList = DOCUMENTTYPE;
   }
+  dialogRef: any;
+  documentId: any;
   borrowerDetailForm!: FormGroup;
   dropDownValue: any = {};
   documentWithErrorList: any = [];
   typeOfDocument = new FormControl([]);
-  typeOfErrorSelect = new FormControl([]);
+  typeOfErrorSelect: any = new FormControl([], Validators.required)
   verified: string = '../../assets/image/verified.png';
   unverified: string = '../../assets/image/unverified.png';
   totaldoc: string = '../../assets/image/total-doc.png';
@@ -70,16 +70,35 @@ export class BorrowDetailsComponent implements OnInit {
     inputFields: [],
   };
 
-  dynamicInputForm = new FormGroup({});
+  messageForBorrower = this.formBuilder.group({
+    message: ['', [Validators.required]],
+  });
+
+  errorList: any = [];
+
+  documentCatWithErrMsg: any = [];
+
+  dynamicInputForm: any = new FormGroup({});
+
+  buttonLoader: boolean = false;
+  errorMessageForErrorSelect: boolean = false;
+  saveButtonLoader: boolean = false;
+  reportErrorSaveButtonLoader: boolean = false;
+
+  disableOnNoDocument: boolean = false;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     // const id = 'CE1000408';
-    this.apiService.getBorrowerDetails(id).subscribe(
-      (data: any) => {
+    this.apiService.getBorrowerDetails(id).subscribe({
+      next: (data: any) => {
         this.borrowerFileInfo = data?.file;
+        this.documentId = data.deal.id
         if (data.file.length > 0) {
-          this.uploadedDocument(data.file[0].id);
+          this.getUploadedDocument(data.file[0].id);
+        }
+        else {
+          this.disableOnNoDocument = true;
         }
         this.borrowerDetailFormInitialValue = {
           ceDealId: data.deal.ceDealId,
@@ -113,18 +132,14 @@ export class BorrowDetailsComponent implements OnInit {
         this.borrowerDetailForm.disable();
         this.loader = false;
       },
-      (error) => {
-        this.snackBar.open('Something went wrong!', 'Close', {
-          duration: SNACKBARTIMMER,
-          verticalPosition: 'top',
-          horizontalPosition: 'end',
-        });
+      error: (error) => {
+        this.sharedService.showErrorMessage();
         console.error(error);
         this.storeDataInForm({});
         this.borrowerDetailForm.disable();
         this.loader = false;
-      }
-    );
+      },
+    });
   }
 
   zoomIn() {
@@ -146,6 +161,7 @@ export class BorrowDetailsComponent implements OnInit {
     }
     this.zoomButtonDisable = 'zoomOut';
   }
+
   restoreZoom() {
     if (!this.isPdfFile && this.pinchZoom?.isZoomedIn) {
       this.pinchZoom.toggleZoom();
@@ -154,9 +170,10 @@ export class BorrowDetailsComponent implements OnInit {
     }
     this.zoomButtonDisable = 'zoomOut';
   }
-  uploadedDocument(id: any) {
-    this.apiService.getUploadedDocument(id).subscribe(
-      (res: any) => {
+
+  getUploadedDocument(id: any) {
+    this.apiService.getUploadedDocument(id).subscribe({
+      next: (res: any) => {
         if (res.extension === '.pdf') {
           if (res.data.length > 0) {
             this.isPdfFile = true;
@@ -170,23 +187,12 @@ export class BorrowDetailsComponent implements OnInit {
         }
         this.imageLoader = false;
       },
-      (error) => {
+      error: (error) => {
         console.error(error);
-        this.snackBar.open('Something went wrong!', 'Close', {
-          duration: SNACKBARTIMMER,
-          verticalPosition: 'top',
-          horizontalPosition: 'end',
-        });
-      }
-    );
+        this.sharedService.showErrorMessage();
+      },
+    });
   }
-
-  // removeOption(option: string) {
-  //   const index = this.selectedOptions.indexOf(option);
-  //   if (index >= 0) {
-  //     this.selectedOptions.splice(index, 1);
-  //   }
-  // }
 
   prevImage(): void {
     this.imageLoader = true;
@@ -195,7 +201,7 @@ export class BorrowDetailsComponent implements OnInit {
       this.currentIndex === 0
         ? this.borrowerFileInfo.length - 1
         : this.currentIndex - 1;
-    this.uploadedDocument(this.borrowerFileInfo[this.currentIndex].id);
+    this.getUploadedDocument(this.borrowerFileInfo[this.currentIndex].id);
   }
 
   nextImage(): void {
@@ -205,41 +211,66 @@ export class BorrowDetailsComponent implements OnInit {
       this.currentIndex === this.borrowerFileInfo.length - 1
         ? 0
         : this.currentIndex + 1;
-    this.uploadedDocument(this.borrowerFileInfo[this.currentIndex].id);
+    this.getUploadedDocument(this.borrowerFileInfo[this.currentIndex].id);
   }
 
-  ReportError(): void {
+  openReportErrorDialog(): void {
     this.typeOfError = true;
-    console.log(this.dynamicInputForm, '/qaq/');
   }
-  confirm(): void {
-    this.typeOfError = false;
+  handleReportError(): void {
+    if (!this.messageForBorrower.valid || !this.typeOfErrorSelect.valid) {
+      this.messageForBorrower.markAllAsTouched();
+      this.typeOfErrorSelect.markAllAsTouched();
+      return;
+    }
+    this.errorList = [...this.typeOfErrorSelect.value];
+    
+    let data = {
+      id: this.borrowerFileInfo[this.currentIndex].id,
+      documentCategory: this.documentCatWithErrMsg[0].documentCategory,
+      documentType: this.documentCatWithErrMsg[0].documentType,
+      errorMessageList: this.errorList,
+      ErrorMessage: this.messageForBorrower.value.message,
+    };
+    this.reportErrorSaveButtonLoader =  true;
+    this.apiService.addErrorReport(data).subscribe({
+      next: (res: any) => {
+        this.sharedService.showDataSaveSuccessMessage();
+        this.typeOfError = false;
+        this.reportErrorSaveButtonLoader = false;
+      },
+      error: (err) => {
+        this.sharedService.showErrorMessage();
+        this.reportErrorSaveButtonLoader = false;
+        console.log(err);
+      },
+    });
+    // this.typeOfErrorSelect.reset();
   }
   openDialog() {
-    this.dialog.open(ErrorDialogComponent, {
-      maxWidth: '60vw',
-      maxHeight: '60vh',
-      height: '60%',
-      width: '60%',
+    this.dialogRef = this.dialog.open(ErrorDialogComponent, {
+      panelClass: 'custom-modal-class',
       disableClose: true,
       data: {
         approvedDoc: this.verifiedCount,
         totalDoc: this.borrowerFileInfo.length,
         ceDealId: this.ceDealId,
+        errorList: this.errorList,
+        docCatListWithErrMsg: this.documentCatWithErrMsg,
+        docId: this.documentId,
       },
     });
   }
 
   onRemovedTypDocument(cat: string) {
     const categories = this.typeOfDocument.value as never[];
-    this.removeFirst(categories, cat);
+    this.removeSelectedChip(categories, cat);
     this.typeOfDocument.setValue(categories);
     this.onItemSelected(this.typeOfDocument);
-    // this.getTypeOfErrorList();
   }
   onRemovedTypError(cat: string) {
     const categories = this.typeOfErrorSelect.value as never[];
-    this.removeFirst(categories, cat);
+    this.removeSelectedChip(categories, cat);
     this.typeOfErrorSelect.setValue(categories);
     console.log(this.typeOfErrorSelect);
   }
@@ -247,25 +278,38 @@ export class BorrowDetailsComponent implements OnInit {
   onItemSelected(event: any) {
     let errorMessages: any = [];
     let fieldsValue: any = [];
+    let documentWithCategory: any = [];
 
     // For getting the input fields and error message as per the selected document type
     event.value.forEach((vl: any) => {
-      errorMessages = [
-        ...errorMessages,
-        ...this.documentWithErrorList.find(
-          (doc: any) => doc.documentCategory === vl
-        ).errorMessage,
-      ];
-      fieldsValue = [
-        ...fieldsValue,
-        ...this.documentWithErrorList.find(
-          (doc: any) => doc.documentCategory === vl
-        ).fields,
+      const selectedDocValue = this.documentWithErrorList.find(
+        (doc: any) => doc.documentCategory === vl
+      );
+
+      errorMessages = [...errorMessages, ...selectedDocValue.errorMessage];
+      fieldsValue = [...fieldsValue, ...selectedDocValue.fields];
+
+      documentWithCategory = [
+        ...documentWithCategory,
+        {
+          documentCategory: selectedDocValue.documentCategory,
+          message: selectedDocValue.errorMessage,
+          documentType: selectedDocValue.documentType,
+        },
       ];
     });
-    this.dataAccordingToDocument.errorMessages = new Set([...errorMessages]);
-    
-    // For remove duplicate input fields
+    this.dataAccordingToDocument.errorMessages = Array.from(
+      new Set([...errorMessages])
+    );
+
+    if (this.typeOfErrorSelect.value.length > 0) {
+      let result = this.typeOfErrorSelect.value.filter((item: any) =>
+        this.dataAccordingToDocument.errorMessages.includes(item)
+      );
+      this.typeOfErrorSelect.value = [...result];
+    }
+    console.log(this.typeOfErrorSelect.value);
+    this.documentCatWithErrMsg = [...documentWithCategory];
     let cloneFieldsValue: any = [];
     let uniqueObj: any = {};
     fieldsValue.forEach((vl: any) => {
@@ -300,13 +344,16 @@ export class BorrowDetailsComponent implements OnInit {
         );
         if (index === -1) {
           this.dataAccordingToDocument.inputFields.push(vl);
-          this.dynamicInputForm.addControl(vl.key, new FormControl(''));
+          this.dynamicInputForm.addControl(
+            vl.key,
+            new FormControl('', Validators.required)
+          );
         }
       });
     }
   }
 
-  removeFirst(array: any[], toRemove: any): void {
+  removeSelectedChip(array: any[], toRemove: any): void {
     const index = array.indexOf(toRemove);
     if (index !== -1) {
       array.splice(index, 1);
@@ -383,8 +430,6 @@ export class BorrowDetailsComponent implements OnInit {
   }
 
   saveFormField() {
-    // this.borrowerDetailForm.disable();
-    // this.isEditForm = false;
     if (!this.borrowerDetailForm.touched) {
       this.isEditForm = false;
       this.borrowerDetailForm.disable();
@@ -394,26 +439,46 @@ export class BorrowDetailsComponent implements OnInit {
       this.borrowerDetailForm.markAllAsTouched();
       return;
     }
-    this.loader = true;
-    this.apiService.updateBorrowerList(this.borrowerDetailForm.value).subscribe(
-      (res: any) => {
-        this.loader = false;
-        this.isEditForm = false;
-        this.borrowerDetailForm.disable();
-        console.log(res);
-      },
-      (error) => {
-        this.snackBar.open('Something went wrong!', 'Close', {
-          duration: SNACKBARTIMMER,
-          verticalPosition: 'top',
-          horizontalPosition: 'end',
-        });
-        this.loader = false;
-      }
-    );
+    this.saveButtonLoader = true;
+    this.apiService
+      .updateBorrowerList({id: this.documentId, ...this.borrowerDetailForm.value})
+      .subscribe({
+        next: (res: any) => {
+          this.saveButtonLoader = false;
+          this.isEditForm = false;
+          this.borrowerDetailForm.disable();
+          this.sharedService.showDataSaveSuccessMessage();
+          console.log(res);
+        },
+        error: (error) => {
+          this.sharedService.showErrorMessage();
+          this.saveButtonLoader = false;
+        },
+      });
     console.log(this.borrowerDetailForm);
   }
   returnZero() {
     return 0;
+  }
+
+  confirmInputFields() {
+    if (!this.dynamicInputForm.valid) {
+      this.dynamicInputForm.markAllAsTouched();
+      return;
+    }
+    this.buttonLoader = true;
+    this.apiService
+      .updateDynamicField(this.ceDealId, this.dynamicInputForm.value)
+      .subscribe({
+        next: (res: any) => {
+          console.log(res, 'response');
+          this.buttonLoader = false;
+          this.sharedService.showDataSaveSuccessMessage();
+        },
+        error: (error) => {
+          this.sharedService.showErrorMessage();
+          this.buttonLoader = false;
+        },
+      });
   }
 }

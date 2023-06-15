@@ -8,6 +8,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 import {
   InteractionStatus
 } from '@azure/msal-browser';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -48,7 +49,7 @@ export class AppComponent implements OnInit, OnDestroy {
     localStorage.clear();
     // location.href = `https://login.microsoftonline.com/b691ecf0-5e83-41f9-8039-8d8a0006368a/oauth2/v2.0/logout?post_logout_redirect_uri=http://localhost:4200`;
     this.msalService.logoutRedirect({
-      postLogoutRedirectUri: 'http://localhost:4200',
+      postLogoutRedirectUri: environment.postLogoutRedirectUri,
     });
   }
   // logout() { // Add log out function here

@@ -124,17 +124,17 @@
   z-index: 2;
 }
 .cross-icon {
-    background: red;
-    box-shadow: 0 0 2px 1px #cfcdcd;
-    border-radius: 30px;
-    width: 40px;
-    height: 40px;
-    font-size: 34px;
-    transition: 0.4s ease;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background: red;
+  box-shadow: 0 0 2px 1px #cfcdcd;
+  border-radius: 30px;
+  width: 40px;
+  height: 40px;
+  font-size: 34px;
+  transition: 0.4s ease;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .cross-icon:hover {
   background: #fff;
@@ -152,7 +152,20 @@
 }
 
 .file-name {
-    width: 300px;
-    overflow: hidden;
-    white-space: nowrap;
+  width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.errMsg {
+  font-size: large;
+  font-weight: 500;
+}
+
+.btn-loader {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
 }

@@ -1,38 +1,81 @@
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
 /* @import './customTheme.scss'; */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-img { width: 100%; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+img {
+  width: 100%;
+}
 
-.primary{
-    background: #F2A000;
+.primary {
+  background: #f2a000;
 }
 .loader-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-  
-  .loader-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Adjust the opacity or color as desired */
-  }
-  
-  .loader-spinner {
-    position: relative;
-  }
-  /* .cdk-global-overlay-wrapper .cdk-overlay-pane
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loader-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Adjust the opacity or color as desired */
+}
+
+.loader-spinner {
+  position: relative;
+}
+
+.mat-select-trigger {
+  display: inline-table !important;
+}
+
+.mat-select-value {
+  display: table-cell !important;
+}
+
+.multi-chips .mat-form-field-flex {
+  overflow: auto;
+  max-height: 137px;
+}
+.lod {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+}
+/* .cdk-global-overlay-wrapper .cdk-overlay-pane
   {
     position: relative !important;
   } */
+  .custom-modal-class {
+    width: 640px;
+    position: relative !important;
+  }
+
+  @media (max-width: 768px) {
+    .custom-modal-class {
+      width: 96%;
+  }
+  }

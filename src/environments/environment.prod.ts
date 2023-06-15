@@ -1,5 +1,8 @@
 export const environment = {
-  production: true,
-  apiURL:'https://da-app.creditenable.com/',
-  clientId:'0e421cdf-b194-41d0-b325-050ac13bc6da',
+  production: false,
+  apiURL:'https://da-app.creditenable.com/api/',
+  clientId: "14f23fd4-f067-4613-ab4f-599cc22988ea",
+  tenantId: "b5242107-a98d-44a5-a3df-5063c58f0d57",
+  redirectURI: 'http://localhost:17836/',
+  postLogoutRedirectUri: "http://localhost:17836/"
 };

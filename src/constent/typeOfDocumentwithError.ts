@@ -103,8 +103,8 @@ const DOCUMENTTYPE = [
     errorMessage: [
       'Aadhar Card Missing',
       'Front Side Aadhar Card Missing',
-      'First Name Mismatch',
-      'Last Name Mismatch',
+      'First Name Mismatch In Aadhar Card',
+      'Last Name Mismatch In Aadhar Card',
       'DOB Mismatch in Aadhar Card',
     ],
     fields: [
@@ -133,8 +133,8 @@ const DOCUMENTTYPE = [
     errorMessage: [
       'Pan Card Missing',
       'Front Side Pan Card Missing',
-      'First Name Mismatch',
-      'Last Name Mismatch',
+      'First Name Mismatch In Pan Card',
+      'Last Name Mismatch In Pan Card',
       'DOB Mismatch in Pan Card',
     ],
     fields: [
@@ -188,7 +188,7 @@ const DOCUMENTTYPE = [
   {
     documentCategory: 'MOA',
     documentType: 'company_kyc',
-    errorMessage: ['All Pages Required', 'Business Name Check'],
+    errorMessage: ['All Pages Required In MOA', 'Business Name Check'],
     fields: [
       {
         name: 'Business Name',
@@ -200,7 +200,7 @@ const DOCUMENTTYPE = [
   {
     documentCategory: 'AOA',
     documentType: 'company_kyc',
-    errorMessage: ['All Pages Required', 'Business Name Check'],
+    errorMessage: ['All Pages Required In AOA', 'Business Name Check'],
     fields: [
       {
         name: 'Business Name',

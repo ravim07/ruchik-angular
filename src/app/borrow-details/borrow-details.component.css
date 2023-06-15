@@ -209,3 +209,9 @@
     font-size: x-large;
     font-weight: 500;
 }
+
+@media (max-width: 768px) {
+  .docsheight {
+    height: 500px;
+  }
+}

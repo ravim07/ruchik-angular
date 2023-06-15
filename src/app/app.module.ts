@@ -25,7 +25,7 @@ import {
   MsalModule,
   MsalRedirectComponent,
 } from '@azure/msal-angular';
-import { InteractionType, PublicClientApplication } from '@azure/msal-browser';
+import { BrowserCacheLocation, InteractionType, PublicClientApplication } from '@azure/msal-browser';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpClientModule } from '@angular/common/http';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -33,7 +33,6 @@ import { BorrowDetailsComponent } from './borrow-details/borrow-details.componen
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSelectModule} from '@angular/material/select';
 import {MatGridListModule} from '@angular/material/grid-list';
-// import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 import { LoginComponent } from './login/login.component';
 import { environment } from 'src/environments/environment';
@@ -44,7 +43,6 @@ import { LoaderComponent } from './common/loader/loader.component';
 import { InterceptorService } from './services/interceptor.service';
 import { MatSortModule } from '@angular/material/sort';
 import { MatNativeDateModule } from '@angular/material/core';
-// import { NgxDocViewerModule } from 'ngx-doc-viewer';
 
 
 
@@ -86,12 +84,12 @@ const isIE =
         auth: {
           clientId: environment.clientId, // Application (client) ID from the app registration
           authority:
-            'https://login.microsoftonline.com/common', // The Azure cloud instance and the app's sign-in audience (tenant ID, common, organizations, or consumers)
-            redirectUri: 'http://localhost:4200/home', // This is your redirect URI
+            `https://login.microsoftonline.com/${environment.tenantId}`, // The Azure cloud instance and the app's sign-in audience (tenant ID, common, organizations, or consumers)
+            redirectUri: environment.redirectURI, // This is your redirect URI
           navigateToLoginRequestUrl: true,
         },
         cache: {
-          cacheLocation: 'localStorage',
+          cacheLocation: BrowserCacheLocation.LocalStorage,
           storeAuthStateInCookie: isIE, // Set to true for Internet Explorer 11
         },
       }),

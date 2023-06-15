@@ -5,10 +5,10 @@
 export const environment = {
   production: false,
   apiURL:'https://da-app.creditenable.com/api/',
-  clientId:'0e421cdf-b194-41d0-b325-050ac13bc6da',
-  tenantId:'b691ecf0-5e83-41f9-8039-8d8a0006368a',
-  clientSecret:'00041b04-7711-4dc7-8fb2-27bb22fafb99',
-  redirectURI: 'http://localhost:4200/home'
+  clientId: "14f23fd4-f067-4613-ab4f-599cc22988ea",
+  tenantId: "b5242107-a98d-44a5-a3df-5063c58f0d57",
+  redirectURI: 'http://localhost:17836/',
+  postLogoutRedirectUri: "http://localhost:17836/"
 };
 
 /*

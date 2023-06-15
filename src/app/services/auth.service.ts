@@ -14,9 +14,8 @@ export class AuthService {
     const tokensKeys = `msal.token.keys.${[environment.clientId]}`;
     let acessTokenKey:any = localStorage.getItem(tokensKeys)
     acessTokenKey = JSON.parse(acessTokenKey);
-    let accessToken:any = localStorage.getItem(acessTokenKey?.accessToken[0]);
-    accessToken = JSON.parse(accessToken)
-    console.log(acessTokenKey?.accessToken[0]);
+    let accessToken:any = localStorage.getItem(acessTokenKey?.idToken[0]);
+    accessToken = JSON.parse(accessToken);
     return accessToken.secret
   }
 

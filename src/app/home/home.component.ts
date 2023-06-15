@@ -2,9 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { BorrowerService } from '../services/borrower.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, Subscription, debounceTime } from 'rxjs';
-import SNACKBARTIMMER from '../../constent/constent';
+import { SharedService } from '../services/shared.service';
 // import { MatSort, Sort } from '@angular/material/sort';
 
 export interface BorrowerList {
@@ -29,7 +28,7 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private apiService: BorrowerService,
-    private snackBar: MatSnackBar
+    private sharedService: SharedService
   ) {
     this.searchSubscription = this.searchSubject
       .pipe(debounceTime(300))
@@ -53,7 +52,8 @@ export class HomeComponent implements OnInit {
   pageSizeOptions = [5, 10, 20, 50, 100];
   searchText = '';
   sortBy = '';
-  dataAssociate = [];
+  dataAssociate: any = [];
+  noDataFound: boolean = false;
 
   ngOnInit(): void {
     const data = {
@@ -63,28 +63,40 @@ export class HomeComponent implements OnInit {
       sortBy: this.sortBy,
     };
     this.getBorrowerListData(data);
+    this.getAssociateData();
+  }
+
+  getAssociateData(){
+    this.loader = true;
+    this.apiService.getAssociateList().subscribe({
+      next: (res: any) => {
+        this.loader = false;
+        this.dataAssociate = res.map(
+          (vl: any) => vl.name
+        );
+      },
+      error: (err) => {
+        this.loader = false;
+        this.sharedService.showErrorMessage();
+        console.log(err);
+      },
+    });
   }
 
   getBorrowerListData(item: any) {
-    this.apiService.getBorrowerList(item).subscribe(
-      (res: any) => {
+    this.loader = true
+    this.apiService.getBorrowerList(item).subscribe({
+      next: (res: any) => {
         this.loader = false;
         this.borrowerList = new MatTableDataSource(res.opsDashboardDocument);
         this.totalDataCount = res.totalRecord;
-        this.dataAssociate = res.opsDashboardDocument.map(
-          (vl: any) => vl.dataAssociate
-        );
       },
-      (error: any) => {
+      error: (err) => {
         this.loader = false;
-        this.snackBar.open('Something went wrong!', 'Close', {
-          duration: SNACKBARTIMMER,
-          verticalPosition: 'top',
-          horizontalPosition: 'end',
-        });
-        console.log(error);
-      }
-    );
+        this.sharedService.showErrorMessage();
+        console.log(err);
+      },
+    });
   }
 
   handlePageEvent(e: any) {

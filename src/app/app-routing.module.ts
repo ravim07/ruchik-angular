@@ -23,11 +23,6 @@ const routes: Routes = [
     component: BorrowDetailsComponent,
     canActivate: [MsalGuard],
   },
-  //   {
-  //   path:'profile',
-  //   component: ProfileComponent,
-  //   canActivate: [MsalGuard],
-  // }
 ];
 
 @NgModule({
