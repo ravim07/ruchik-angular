@@ -55,7 +55,7 @@ export class BorrowerService {
 
   getAssociateList(){
     return this.http.get(
-      `${this.apiURL}/UserInfo/UserDetails/GetDateAssociate`
+      `${this.apiURL}AccountInfo/Account/GetDateAssociates`
     );
   }
 }

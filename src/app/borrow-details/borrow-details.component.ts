@@ -133,6 +133,7 @@ export class BorrowDetailsComponent implements OnInit {
         this.loader = false;
       },
       error: (error) => {
+        this.disableOnNoDocument = true;
         this.sharedService.showErrorMessage();
         console.error(error);
         this.storeDataInForm({});

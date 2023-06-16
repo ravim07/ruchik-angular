@@ -8,6 +8,7 @@
         <mat-select
           placeholder="Select Associate"
           (selectionChange)="filterByDataAssociate($event)"
+          [(ngModel)]="associateValue"
         >
           <mat-option *ngFor="let assoc of dataAssociate" [value]="assoc">
             {{ assoc }}

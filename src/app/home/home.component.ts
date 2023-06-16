@@ -54,6 +54,7 @@ export class HomeComponent implements OnInit {
   sortBy = '';
   dataAssociate: any = [];
   noDataFound: boolean = false;
+  associateValue = '';
 
   ngOnInit(): void {
     const data = {
